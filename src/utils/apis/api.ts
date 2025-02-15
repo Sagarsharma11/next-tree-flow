@@ -21,7 +21,7 @@ export const signupApi = async (payload: { email: string; password: string; }) =
 export const loginApi = async (payload: { username: string; password: string; }) => {
   try {
     const response = await apiInstance.post("/token", payload);
-    return response.data;
+    return response;
   } catch (error) {
     console.error("Login API call failed", error);
     throw error;
@@ -30,12 +30,30 @@ export const loginApi = async (payload: { username: string; password: string; })
 
 export const verifyToken = async (token: string) => {
   try {
-    const response = await apiInstance.get("/VerifyToken", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
+    const response = await apiInstance.post("/VerifyToken", {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Token verification failed", error);
+    throw error;
+  }
+};
+
+export const refreshToken = async (token: string) => {
+  try {
+    const response = await apiInstance.post("/refresh", {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      }
+    );
+    return response;
   } catch (error) {
     console.error("Token verification failed", error);
     throw error;

@@ -6,10 +6,8 @@ type Props = {}
 
 const Dashboard = (props: Props) => {
   return (
-    <div className='h-screen w-full bg-teal-950'>
+    <div className='h-screen w-full '>
       Dashboard
-    fethgyiseru guieduygui duigbh etuihiubhuirt
-    
     </div>
   )
 }

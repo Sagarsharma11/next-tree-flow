@@ -39,11 +39,12 @@ const Login = () => {
             //@ts-ignore
             const response = await loginApi(data);
             console.log(response)
-            if(response){
-                setLocalStorage("token", response.access_token );
-                // router.replace("/dashboard");
+            if (response.status === 200) {
+                setLocalStorage("token", response.data.access_token);
+                setLocalStorage("refresh_token", response.data.refresh_token);
+                router.replace("/dashboard");
             }
-            setMessage(response.message || "Signup successful!");
+            setMessage(response.data.message || "Signup successful!");
         } catch (error) {
             setMessage("Signup failed. Please try again.");
         }
@@ -81,7 +82,7 @@ const Login = () => {
                                         Forgot your password?
                                     </a>
                                 </div>
-                                <Input onChange={handleChange} id="password" type="password" name="password"  required />
+                                <Input onChange={handleChange} id="password" type="password" name="password" required />
                             </div>
                             <Button onClick={handleClick} type="submit" className="w-full">
                                 Login
