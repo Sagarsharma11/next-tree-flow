@@ -1,4 +1,4 @@
-import * as React from "react"
+import {useEffect, useState} from "react"
 
 import { SearchForm } from "../components/SearchForm"
 import { VersionSwitcher } from "../components/VersionSwitcher"
@@ -14,6 +14,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { logout } from "@/utils/apis/api"
+import { getLocalStorage, removeLocalStorage } from "@/utils/localstorage/localStorage"
 
 // This is sample data.
 const data = {
@@ -144,10 +146,45 @@ const data = {
         },
       ],
     },
+    {
+      title: "Actions",
+      url: "#",
+      items: [
+        {
+          title: "Logout",
+          url: "#",
+        },
+      ],
+    }
   ],
 }
 
 export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const handleClick = async () => {
+    const accessToken = getLocalStorage("token")?.replace(/['"]+/g, "") || "";
+    const refreshToken = getLocalStorage("refresh_token")?.replace(/['"]+/g, "") || "";
+  
+    try {
+      if (accessToken && refreshToken) {
+        // const result = await logout(accessToken, refreshToken);
+        // if (result.status === 200) {
+        //   removeLocalStorage("token");
+        //   removeLocalStorage("refresh_token");
+        // }
+      }
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      removeLocalStorage("token");
+      removeLocalStorage("refresh_token");
+
+      if (typeof window !== "undefined") {
+        window.location.reload();
+      }
+    }
+  };
+  
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -166,8 +203,15 @@ export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenu>
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
+                    
                     <SidebarMenuButton asChild isActive={item.isActive}>
-                      <a href={item.url}>{item.title}</a>
+                      {
+                        item.title === "Logout" ?
+                          <button className="border cursor-pointer"
+                            onClick={handleClick}
+                           >{item.title}</button>
+                          : <a href={item.url}>{item.title}</a>
+                      }
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

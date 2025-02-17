@@ -1,4 +1,5 @@
 "use client"
+import DashboardLayout from '@/Layout/Layout'
 import Auth from '@/utils/AuthHOC/Auth'
 import React from 'react'
 
@@ -6,9 +7,11 @@ type Props = {}
 
 const Dashboard = (props: Props) => {
   return (
-    <div className='h-screen w-full '>
-      Dashboard
-    </div>
+    <DashboardLayout>
+      <div>
+        Dashboard
+      </div>
+    </DashboardLayout>
   )
 }
 

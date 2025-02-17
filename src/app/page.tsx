@@ -1,6 +1,5 @@
 "use client"
 import Auth from "@/utils/AuthHOC/Auth";
-import Dashboard from "./dashboard/page";
 
 const Home = () =>{
   return (

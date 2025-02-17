@@ -49,13 +49,28 @@ export const refreshToken = async (token: string) => {
     const response = await apiInstance.post("/refresh", {},
       {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          refresh_token: `${token}`, 
         },
       }
     );
     return response;
   } catch (error) {
     console.error("Token verification failed", error);
+    throw error;
+  }
+};
+
+export const logout = async (accessToken: string, refreshToken: string) => {
+  try {
+    const response = await apiInstance.post("/logout", {}, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        refresh_token: refreshToken,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Logout failed", error);
     throw error;
   }
 };

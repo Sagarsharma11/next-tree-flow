@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect } from 'react'
 import Login from '../components/Login/Login'
-import { loginApi } from '@/utils/apis/api'
+
 
 type Props = {}
 
