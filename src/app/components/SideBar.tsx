@@ -26,8 +26,8 @@ const data = {
       url: "#",
       items: [
         {
-          title: "Installation",
-          url: "#",
+          title: "Cloud Scanner",
+          url: "/cloud-scanner",
         },
         {
           title: "Project Structure",

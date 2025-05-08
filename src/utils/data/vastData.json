@@ -1,0 +1,594 @@
+[
+    {
+      "Region": "us-east-1",
+      "VPCs": [
+        {
+          "VPC_ID": "vpc-123abc",
+          "CIDR": "10.0.0.0/16",
+          "Internet_Gateway": {
+            "IGW_ID": "igw-456def",
+            "Attached_VPC": "vpc-123abc",
+            "Routes": [
+              {
+                "Destination": "0.0.0.0/0",
+                "Target": "igw-456def",
+                "Description": "Default route to Internet"
+              }
+            ]
+          },
+          "Subnets": [
+            {
+              "Subnet_ID": "subnet-aaa111",
+              "CIDR": "10.0.1.0/24",
+              "Availability_Zone": "us-east-1a",
+              "NACL": {
+                "NACL_ID": "acl-xyz123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "TCP",
+                    "Port": "80",
+                    "Source": "0.0.0.0/0",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "0.0.0.0/0",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-web123",
+                  "Description": "Web Server Security Group",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "TCP",
+                      "Port": "80",
+                      "Source": "0.0.0.0/0",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "0.0.0.0/0",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-1234567890abcdef",
+                      "Instance_Type": "t3.medium",
+                      "Private_IP": "10.0.1.10",
+                      "Security_Groups": ["sg-web123"],
+                      "IAM_Role": "WebServerRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-bbb222",
+              "CIDR": "10.0.2.0/24",
+              "Availability_Zone": "us-east-1b",
+              "NACL": {
+                "NACL_ID": "acl-db123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "TCP",
+                    "Port": "3306",
+                    "Source": "10.0.1.0/24",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.1.0/24",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-db456",
+                  "Description": "Database Security Group",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "TCP",
+                      "Port": "3306",
+                      "Source": "10.0.1.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.1.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-0987654321fedcba",
+                      "Instance_Type": "t3.large",
+                      "Private_IP": "10.0.2.10",
+                      "Security_Groups": ["sg-db456"],
+                      "IAM_Role": "DBAdminRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-ccc333",
+              "CIDR": "10.0.3.0/24",
+              "Availability_Zone": "us-east-1c",
+              "NACL": {
+                "NACL_ID": "acl-app789",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "TCP",
+                    "Port": "8080",
+                    "Source": "10.0.1.0/24",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.1.0/24",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-app789",
+                  "Description": "Application Server SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "TCP",
+                      "Port": "8080",
+                      "Source": "10.0.1.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.2.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-1122334455667788",
+                      "Instance_Type": "t3.xlarge",
+                      "Private_IP": "10.0.3.10",
+                      "Security_Groups": ["sg-app789"],
+                      "IAM_Role": "AppServerRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-ddd444",
+              "CIDR": "10.0.4.0/24",
+              "Availability_Zone": "us-east-1d",
+              "NACL": {
+                "NACL_ID": "acl-bastion123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "TCP",
+                    "Port": "22",
+                    "Source": "0.0.0.0/0",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.0.0/16",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-bastion456",
+                  "Description": "Bastion Host SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "TCP",
+                      "Port": "22",
+                      "Source": "0.0.0.0/0",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.0.0/16",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-2233445566778899",
+                      "Instance_Type": "t2.micro",
+                      "Private_IP": "10.0.4.10",
+                      "Security_Groups": ["sg-bastion456"],
+                      "IAM_Role": "BastionRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-eee555",
+              "CIDR": "10.0.5.0/24",
+              "Availability_Zone": "us-east-1e",
+              "NACL": {
+                "NACL_ID": "acl-nat123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Source": "10.0.6.0/24",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "0.0.0.0/0",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-nat456",
+                  "Description": "NAT Instance SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Source": "10.0.6.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "0.0.0.0/0",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-3344556677889900",
+                      "Instance_Type": "t3.small",
+                      "Private_IP": "10.0.5.10",
+                      "Security_Groups": ["sg-nat456"],
+                      "IAM_Role": "NATRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-fff666",
+              "CIDR": "10.0.6.0/24",
+              "Availability_Zone": "us-east-1f",
+              "NACL": {
+                "NACL_ID": "acl-private123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Source": "10.0.5.0/24",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.5.0/24",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-private456",
+                  "Description": "Private Subnet SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Source": "10.0.5.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.5.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-4455667788990011",
+                      "Instance_Type": "t3.micro",
+                      "Private_IP": "10.0.6.10",
+                      "Security_Groups": ["sg-private456"],
+                      "IAM_Role": "PrivateInstanceRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-ggg777",
+              "CIDR": "10.0.7.0/24",
+              "Availability_Zone": "us-east-1a",
+              "NACL": {
+                "NACL_ID": "acl-monitor123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "TCP",
+                    "Port": "9100",
+                    "Source": "10.0.0.0/16",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.0.0/16",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-monitor456",
+                  "Description": "Monitoring Server SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "TCP",
+                      "Port": "9100",
+                      "Source": "10.0.0.0/16",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.0.0/16",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-5566778899001122",
+                      "Instance_Type": "t3.medium",
+                      "Private_IP": "10.0.7.10",
+                      "Security_Groups": ["sg-monitor456"],
+                      "IAM_Role": "MonitoringRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-hhh888",
+              "CIDR": "10.0.8.0/24",
+              "Availability_Zone": "us-east-1b",
+              "NACL": {
+                "NACL_ID": "acl-backup123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "TCP",
+                    "Port": "22",
+                    "Source": "10.0.4.0/24",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.0.0/16",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-backup456",
+                  "Description": "Backup Server SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "TCP",
+                      "Port": "22",
+                      "Source": "10.0.4.0/24",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.0.0/16",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-6677889900112233",
+                      "Instance_Type": "t3.large",
+                      "Private_IP": "10.0.8.10",
+                      "Security_Groups": ["sg-backup456"],
+                      "IAM_Role": "BackupRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-iii999",
+              "CIDR": "10.0.9.0/24",
+              "Availability_Zone": "us-east-1c",
+              "NACL": {
+                "NACL_ID": "acl-jump123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "TCP",
+                    "Port": "3389",
+                    "Source": "0.0.0.0/0",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.0.0/16",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-jump456",
+                  "Description": "Windows Jump Server SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "TCP",
+                      "Port": "3389",
+                      "Source": "0.0.0.0/0",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.0.0/16",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-7788990011223344",
+                      "Instance_Type": "t2.medium",
+                      "Private_IP": "10.0.9.10",
+                      "Security_Groups": ["sg-jump456"],
+                      "IAM_Role": "JumpServerRole"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Subnet_ID": "subnet-jjj000",
+              "CIDR": "10.0.10.0/24",
+              "Availability_Zone": "us-east-1d",
+              "NACL": {
+                "NACL_ID": "acl-test123",
+                "Inbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Source": "10.0.0.0/16",
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Rule": 100,
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": "10.0.0.0/16",
+                    "Action": "ALLOW"
+                  }
+                ]
+              },
+              "Security_Groups": [
+                {
+                  "SG_ID": "sg-test456",
+                  "Description": "Test Environment SG",
+                  "Inbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Source": "10.0.0.0/16",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "Outbound_Rules": [
+                    {
+                      "Protocol": "ALL",
+                      "Port": "ALL",
+                      "Destination": "10.0.0.0/16",
+                      "Action": "ALLOW"
+                    }
+                  ],
+                  "EC2_Instances": [
+                    {
+                      "Instance_ID": "i-8899001122334455",
+                      "Instance_Type": "t3.micro",
+                      "Private_IP": "10.0.10.10",
+                      "Security_Groups": ["sg-test456"],
+                      "IAM_Role": "TestRole"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]

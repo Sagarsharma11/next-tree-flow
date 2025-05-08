@@ -1,0 +1,40 @@
+/* .chartMainContainer{
+    border: 1px solid red;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+
+.chartMainContainer svg{
+    border: 1px solid gray;
+} */
+
+.chartContainer {
+    position: relative;
+  }
+  
+  .scrollContainer {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background-color: #1f1f1f; /* Light gray background */
+  }
+
+  .scrollContainer::-webkit-scrollbar{
+    display: none;
+  }
+  
+  .tooltip {
+    position: absolute;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    pointer-events: none;
+    white-space: nowrap;
+  }
