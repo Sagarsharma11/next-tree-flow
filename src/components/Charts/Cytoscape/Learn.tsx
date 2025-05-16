@@ -5,7 +5,7 @@ import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 
 import cloudData from "@/utils/data/data2.json";
-import { convertCloudJsonToCytoscapeElements } from "@/utils/chartDraw/convertCloudJsonToCytoscapeElements";
+import { convertCloudJsonToCytoscapeElements2 } from "@/utils/chartDraw/convertCloudJsonToCytoscapeElements";
 import Modal from "@/components/Modal/Modal";
 import { FcInfo } from "react-icons/fc";
 // import cloudData from "@/utils/data/vastData.json"
@@ -61,14 +61,15 @@ const stylesheet = [
             "font-weight": "bold",
         },
     },
-    { selector: ".vpc", style: { "background-color": "#A0D2FF", "border-color": "#3399FF", "color": "#fff" } },
-    { selector: ".subnet", style: { "background-color": "#D2F0FF", "border-color": "#33CCFF", "color": "#FFF" } },
-    { selector: ".sg", style: { "background-color": "#FFD700" } },
-    { selector: ".ec2", style: { "background-color": "#FF6347" } },
-    { selector: ".igw", style: { "background-color": "#90EE90" } },
-    { selector: ".nacl", style: { "background-color": "#9370DB" } },
-
-
+    { selector: ".vpc", style: { "background-color": "#A0D2FF", "border-color": "#3399FF", "color": "#fff", "font-size": "18px" } },
+    { selector: ".subnet", style: { "background-color": "#A0D2FF", "border-color": "#33CCFF", "color": "#FFF", "font-size": "18px" } },
+    { selector: ".sg", style: { "background-color": "#A0D2FF", "color": "#fff", "font-size": "18px" } },
+    { selector: ".ec2", style: { "background-color": "#FF6347", } },
+    { selector: ".igw", style: { "background-color": "#90EE95", "font-size": "18px" } },
+    { selector: ".nacl", style: { "background-color": "#9370DB", "color": "#fff", "font-size": "18px" } },
+    {
+        selector: ".aws-resource", style: { "background-color": "#90EE90",  "font-size": "18px" }
+    },
     {
         selector: "edge",
         style: {
@@ -97,14 +98,9 @@ const stylesheet = [
 const Learn: React.FC = () => {
     const [userJsonData, setUserJsonData] = useState([]);
     const [handleChangeData, setHandleChangeData] = useState(null);
-    // const [elements, setElements] = useState<any[]>([]);
-    // Convert the data to elements (used in both initial data and user-provided data)
-    let elements = convertCloudJsonToCytoscapeElements(userJsonData.length ? userJsonData : cloudData);
-    // Update elements when userJsonData changes
-    // useEffect(() => {
-    //     setElements(convertCloudJsonToCytoscapeElements(userJsonData.length ? userJsonData : cloudData));
-    //     // elements = convertCloudJsonToCytoscapeElements(userJsonData.length ? userJsonData : cloudData);
-    // }, [userJsonData]);
+    let elements = 
+    
+    convertCloudJsonToCytoscapeElements2(userJsonData.length ? userJsonData : cloudData);
 
     const cyRef = useRef<any>(null);
     const [data, setData] = useState("")
@@ -155,41 +151,32 @@ const Learn: React.FC = () => {
         setHandleChangeData(e.target.value);
     }
 
-    // const handleUserDataClick = () => {
-    //     try {
-    //         //@ts-ignore
-    //         const parsedData = JSON.parse(handleChangeData);
-    //         setUserJsonData(parsedData);
-    //     } catch (error) {
-    //         console.error("Invalid JSON data", error);
-    //     }
-    // }
     const handleUserDataClick = () => {
         try {
-          const parsedData = JSON.parse(handleChangeData);
-          setUserJsonData(parsedData);
-      
-          if (cyRef.current) {
-            const cy = cyRef.current;
-            const newElements = convertCloudJsonToCytoscapeElements(parsedData);
-      
-            // Remove existing elements
-            cy.elements().remove();
-      
-            // Add new elements
-            cy.add(newElements);
-      
-            // Re-run layout and fit
-            cy.layout(layout).run();
-            cy.fit();
-            cy.zoom(cy.zoom() * 0.8);
-            cy.center();
-          }
+            const parsedData = JSON.parse(handleChangeData);
+            setUserJsonData(parsedData);
+
+            if (cyRef.current) {
+                const cy = cyRef.current;
+                const newElements = convertCloudJsonToCytoscapeElements2(parsedData);
+
+                // Remove existing elements
+                cy.elements().remove();
+
+                // Add new elements
+                cy.add(newElements);
+
+                // Re-run layout and fit
+                cy.layout(layout).run();
+                cy.fit();
+                cy.zoom(cy.zoom() * 0.8);
+                cy.center();
+            }
         } catch (error) {
-          console.error("Invalid JSON data", error);
+            console.error("Invalid JSON data", error);
         }
-      };
-      
+    };
+
     return (
         <>
             <div className="bg-transparent flex justify-center items-center p-4 gap-2">
@@ -202,20 +189,9 @@ const Learn: React.FC = () => {
 
                 <Modal data={data} jsonData={cloudData} />
                 <CytoscapeComponent
-                    // cy={(cy) => {
-                    //     cyRef.current = cy;
-                    // }}
                     cy={(cy) => {
                         cyRef.current = cy;
-                    
-                        // Run layout and center once cy is mounted
-                        // cy.on('render', () => {
-                        //   cy.layout(layout).run();
-                        //   cy.fit();
-                        //   cy.zoom(cy.zoom() * 0.8);
-                        //   cy.center();
-                        // });
-                      }}
+                    }}
                     elements={CytoscapeComponent.normalizeElements(elements)}
                     layout={layout}
                     stylesheet={stylesheet}
