@@ -290,8 +290,6 @@ export const convertCloudJsonToCytoscapeElements2 = (data: any) => {
                         if (key === "Inbound_Rules" || key === "Outbound_Rules") return;
                         if (Array.isArray(value)) {
                             value.forEach((resource: any, index: number) => {
-
-                                // console.log("resources ", resource)
                                 let resourceType = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); // e.g., EC2_Instances -> EC2 Instances
                                 let id = resource.Instance_ID || resource.Bucket_Name || `resource-${sg_id}-${key}-${index}`;
 
@@ -305,7 +303,9 @@ export const convertCloudJsonToCytoscapeElements2 = (data: any) => {
                                 });
                             });
                         }
-                    });
+                    }); 
+
+
 
                     elements.push({
                         data: {
@@ -314,27 +314,49 @@ export const convertCloudJsonToCytoscapeElements2 = (data: any) => {
                             label: "Attached",
                         },
                     });
-
                 });
 
 
             });
 
             const subnetAllowObjects = analyzeAllSubnets(subnetsArray)?.filter((item) => item.allowed === true)
+            // console.log("Subnet allow object ", subnetAllowObjects)
             subnetAllowObjects.forEach(element => {
                 const subnetA = subnetsArray.find((item) => item.Subnet_ID === element.from);
                 const subnetB = subnetsArray.find((item) => item.Subnet_ID === element.to);
-                const data = checkSGConnectivityBetweenResources([subnetA["Security_Groups"], subnetB["Security_Groups"]])
-                console.log(JSON.stringify(subnetA), JSON.stringify(subnetB))
-                console.log("-------> ", data)
+                const data = checkSGConnectivityBetweenResources([subnetA["Security_Groups"], subnetB["Security_Groups"]], subnetsArray)
+                console.log(JSON.stringify(subnetA),"\n\n\n\n\n\n", JSON.stringify(subnetB))
+                // console.log("-------> ", data)
+                data.forEach((ele)=>{
+                    // console.log(ele.direction)
+                    if(ele?.direction?.toLowerCase() === "bidirectional"){
+                        elements.push({
+                            data: {
+                                source: subnetA.NACL.NACL_ID,
+                                target: subnetB.NACL.NACL_ID,
+                                label: "Attached-subnets",
+                            },
+                        });
+
+
+                        elements.push({
+                            data: {
+                                source: subnetB.NACL.NACL_ID,
+                                target: subnetA.NACL.NACL_ID,
+                                label: "Attached-subnets",
+                            },
+                        });
+                    }
+                })
+
             });
-            console.log(subnetAllowObjects, subnetsArray);
+            // console.log(subnetAllowObjects, subnetsArray);
 
 
         });
     });
 
-
+    console.log(elements)
     return elements;
 };
 
@@ -342,9 +364,25 @@ export const convertCloudJsonToCytoscapeElements2 = (data: any) => {
 import ip from 'ip';
 
 // Check if target CIDR/IP is contained in rule's CIDR/IP
+// function isAllowedByRule(targetCidrOrIp, ruleCidrOrIp) {
+//     console.log("==> ",targetCidrOrIp, ruleCidrOrIp)
+//     console.log("--> ", ip.cidrSubnet(ruleCidrOrIp).contains(ip.cidrSubnet(targetCidrOrIp).networkAddress))
+//     if (ruleCidrOrIp.includes('/')) {
+//         return ip.cidrSubnet(ruleCidrOrIp).contains(ip.cidrSubnet(targetCidrOrIp).networkAddress);
+//     } else {
+//         return targetCidrOrIp === ruleCidrOrIp;
+//     }
+// }
 function isAllowedByRule(targetCidrOrIp, ruleCidrOrIp) {
+
     if (ruleCidrOrIp.includes('/')) {
-        return ip.cidrSubnet(ruleCidrOrIp).contains(ip.cidrSubnet(targetCidrOrIp).networkAddress);
+        const subnet = ip.cidrSubnet(ruleCidrOrIp);
+        const targetIp = targetCidrOrIp.includes('/') 
+            ? ip.cidrSubnet(targetCidrOrIp).networkAddress 
+            : targetCidrOrIp;
+
+        // console.log("--> ", subnet.contains(targetIp));
+        return subnet.contains(targetIp);
     } else {
         return targetCidrOrIp === ruleCidrOrIp;
     }
@@ -358,19 +396,21 @@ function isCommunicationAllowedDynamic(outboundRules, inboundRules, sourceCidrOr
     const inboundAllowed = inboundRules.some(rule =>
         rule.Action === 'ALLOW' && isAllowedByRule(sourceCidrOrIp, rule.Source || rule.Destination)
     );
-
     return outboundAllowed && inboundAllowed;
 }
 
 
 // Combine rules from multiple security groups
 function getCombinedRules(securityGroups, ruleType) {
+    // console.log(securityGroups, ruleType)
+    // console.log(securityGroups.flatMap(sg => sg[ruleType] || []))
     return securityGroups.flatMap(sg => sg[ruleType] || []);
 }
 
 // Main function to analyze all subnets
 export function analyzeAllSubnets(subnets) {
     const results = [];
+    // console.log("subnets => ", subnets);
 
     for (let i = 0; i < subnets.length; i++) {
         for (let j = 0; j < subnets.length; j++) {
@@ -378,6 +418,7 @@ export function analyzeAllSubnets(subnets) {
 
             const subnetA = subnets[i];
             const subnetB = subnets[j];
+
 
             // Check NACL rules
             const naclAllowed = isCommunicationAllowedDynamic(
@@ -387,6 +428,7 @@ export function analyzeAllSubnets(subnets) {
                 subnetB.CIDR
             );
 
+            // console.log("NACL allowed ", subnetA, subnetB, naclAllowed)
             // Check SG rules
             const sgAllowed = isCommunicationAllowedDynamic(
                 getCombinedRules(subnetA.Security_Groups, 'Outbound_Rules'),
@@ -394,6 +436,8 @@ export function analyzeAllSubnets(subnets) {
                 subnetA.CIDR,
                 subnetB.CIDR
             );
+            
+            // console.log("sgAllowed ", sgAllowed)
 
             const allowed = naclAllowed && sgAllowed;
 
@@ -408,10 +452,13 @@ export function analyzeAllSubnets(subnets) {
     return results;
 }
 
-export function checkSGConnectivityBetweenResources(sgList) {
+export function checkSGConnectivityBetweenResources(sgList, subnetsArray) {
     const resources = [];
 
-    for (const sg of sgList) {
+    // console.log(sgList.flat()) 
+    
+    for (const sg of sgList.flat()) {
+        // console.log(sg, sg[0].EC2_Instances, sgList)
         const instances = [
             ...(sg.EC2_Instances || []),
             ...(sg.RDS_Instances || []),
@@ -422,8 +469,10 @@ export function checkSGConnectivityBetweenResources(sgList) {
             resources.push({ ip: instance.Private_IP, sg });
         }
     }
-
-    const connections: { from: string; to: string; direction: string }[] = [];
+    // console.log("]]]]]]",resources)
+    const connections: { from: string; to: string; direction: string, fromSgId: string 
+        toSgId: string
+    }[] = [];
 
     for (let i = 0; i < resources.length; i++) {
         for (let j = 0; j < resources.length; j++) {
@@ -431,6 +480,8 @@ export function checkSGConnectivityBetweenResources(sgList) {
 
             const source = resources[i];
             const target = resources[j];
+
+            // console.log(source, target)
 
             const isAllowed = isCommunicationAllowedDynamic(
                 source.sg.Outbound_Rules,
@@ -442,7 +493,9 @@ export function checkSGConnectivityBetweenResources(sgList) {
             if (isAllowed) {
                 connections.push({
                     from: source.ip,
+                    fromSgId: source.sg.SG_ID,
                     to: target.ip,
+                    toSgId: target.sg.SG_ID,
                     direction: 'one-way',
                 });
             }
