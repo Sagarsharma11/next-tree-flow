@@ -98,9 +98,7 @@ const stylesheet = [
 const Learn: React.FC = () => {
     const [userJsonData, setUserJsonData] = useState([]);
     const [handleChangeData, setHandleChangeData] = useState(null);
-    let elements = 
-    
-    convertCloudJsonToCytoscapeElements2(userJsonData.length ? userJsonData : cloudData);
+    let elements = convertCloudJsonToCytoscapeElements2(userJsonData.length ? userJsonData : cloudData);
 
     const cyRef = useRef<any>(null);
     const [data, setData] = useState("")
