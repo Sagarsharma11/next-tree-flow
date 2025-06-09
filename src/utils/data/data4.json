@@ -28,7 +28,7 @@
                   "Rule": 100,
                   "Protocol": "TCP",
                   "Port": "ALL",
-                  "Source": "10.0.2.0/24",
+                  "Source": "0.0.0.0/0",
                   "Action": "ALLOW"
                 }
               ],
@@ -50,7 +50,7 @@
                   {
                     "Protocol": "ALL",
                     "Port": "ALL",
-                    "Source": "10.0.2.0/24",
+                    "Source": "0.0.0.0/0",
                     "Action": "ALLOW"
                   }
                 ],
@@ -58,7 +58,7 @@
                   {
                     "Protocol": "ALL",
                     "Port": "ALL",
-                    "Destination": "10.0.2.100",
+                    "Destination": "0.0.0.0/0",
                     "Action": "ALLOW"
                   }
                 ],
@@ -87,7 +87,7 @@
                   "Rule": 100,
                   "Protocol": "ALL",
                   "Port": "ALL",
-                  "Source": "10.0.1.100",
+                  "Source": "0.0.0.0/0",
                   "Action": "ALLOW"
                 }
               ],
@@ -96,7 +96,7 @@
                   "Rule": 100,
                   "Protocol": "ALL",
                   "Port": "ALL",
-                  "Destination": "10.0.1.0/24",
+                  "Destination": "0.0.0.0/0",
                   "Action": "ALLOW"
                 }
               ]
@@ -109,7 +109,7 @@
                   {
                     "Protocol": "ALL",
                     "Port": "ALL",
-                    "Source": "10.0.1.100",
+                    "Source": "0.0.0.0/0",
                     "Action": "ALLOW"
                   }
                 ],
@@ -146,7 +146,7 @@
                   "Rule": 100,
                   "Protocol": "ALL",
                   "Port": "ALL",
-                  "Source": "10.0.1.100",
+                  "Source": "0.0.0.0/0",
                   "Action": "ALLOW"
                 }
               ],
@@ -168,7 +168,7 @@
                   {
                     "Protocol": "ALL",
                     "Port": "ALL",
-                    "Source": "10.0.1.100",
+                    "Source": "0.0.0.0/0",
                     "Action": "ALLOW"
                   }
                 ],
