@@ -30,8 +30,8 @@ const data = {
           url: "/cloud-scanner",
         },
         {
-          title: "Project Structure",
-          url: "#",
+          title: "Secure Code",
+          url: "/secure-code",
         },
       ],
     },
