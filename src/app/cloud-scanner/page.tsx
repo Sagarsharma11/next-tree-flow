@@ -7,6 +7,7 @@ import React from 'react';
 import awsData from "@/utils/data/data.json"
 import DynamicReactFlow from '@/components/Charts/ReactFlow/DynamicReactFlow'
 import CytoscapeCloudGraph from '@/components/Charts/Cytoscape/Cytoscape'
+import Learn from '@/components/Charts/Cytoscape/Learn'
 
 type Props = {}
 
@@ -245,7 +246,8 @@ const page = (props: Props) => {
         {/* <Chart2 /> */}
         {/* <ReactFlowComponent /> */}
         {/* <DynamicReactFlow awsData={awsData} /> */}
-        <CytoscapeCloudGraph />
+        {/* <CytoscapeCloudGraph /> */}
+        <Learn />
     </DashboardLayout>
   )
 }
