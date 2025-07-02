@@ -1,0 +1,162 @@
+{
+  "auth_56cc6dee.json": {
+    "file": "cyber1/cyber/user_registration/auth.py",
+    "chunks": [
+      {
+        "start_line": 1,
+        "end_line": 100,
+        "chunk_content": "# auth.py\nfrom datetime import datetime, timedelta\nfrom jose import JWTError, jwt\nfrom database import users_collection\nfrom fastapi import HTTPException\nimport secrets\nfrom . import schemas\nimport os\nfrom dotenv import load_dotenv\nload_dotenv()\n\nSECRET_KEY= os.environ[\"SECRET_KEY\"] = os.getenv(\"SECRET_KEY\")\nALGORITHM = os.environ[\"ALGORITHM\"] = os.getenv(\"ALGORITHM\")\nACCESS_TOKEN_EXPIRE_MINUTES = 30\nREFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days\n\nasync def create_access_token(data: dict, expires_delta: timedelta = None):\n    \"\"\"\n    Create a JWT access token with an optional expiration time.\n    \"\"\"\n    to_encode = data.copy()\n    if expires_delta:\n        expire = datetime.utcnow() + expires_delta\n    else:\n        expire = datetime.utcnow() + timedelta(minutes=15)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\n\nasync def create_refresh_token(data: dict, expires_delta: timedelta = None):\n    \"\"\"\n    Create a JWT refresh token with an optional expiration time.\n    \"\"\"\n    to_encode = data.copy()\n    if expires_delta:\n        expire = datetime.utcnow() + expires_delta\n    else:\n        expire = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\n\nasync def verify_token(token: str):\n    \"\"\"\n    Verify a JWT token and retrieve the associated user.\n    \"\"\"\n    credentials_exception = HTTPException(\n        status_code=401,\n        detail=\"Could not validate credentials\",\n        headers={\"WWW-Authenticate\": \"Bearer\"},\n    )\n    try:\n        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])\n        username: str = payload.get(\"data\").get(\"sub\")\n        if username is None:\n            raise credentials_exception\n        token_data = schemas.TokenData(username=username)\n    except JWTError:\n        raise credentials_exception\n\n    # Retrieve the user from MongoDB\n    user = await users_collection.find_one({\"username\": token_data.username})\n    if user is None:\n        raise credentials_exception\n    return user\n\nasync def refresh_access_token(refresh_token: str):\n    \"\"\"\n    Refresh an access token using a valid refresh token.\n    \"\"\"\n    try:\n        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])\n        username: str = payload.get(\"sub\")\n        if username is None:\n            raise HTTPException(\n                status_code=401,\n                detail=\"Invalid refresh token\",\n                headers={\"WWW-Authenticate\": \"Bearer\"},\n            )\n        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)\n        access_token = await create_access_token(\n            data={\"sub\": username}, expires_delta=access_token_expires\n        )\n        return {\"access_token\": access_token, \"token_type\": \"bearer\"}\n    except JWTError:\n        raise HTTPException(\n            status_code=401,\n            detail=\"Invalid refresh token\",\n            headers={\"WWW-Authenticate\": \"Bearer\"},\n        )\n\nasync def verify_refresh_token(token: str, secret_key: str) -> dict:\n    try:\n        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])\n        return payload\n    except JWTError:\n        return None\n\nasync def generate_access_key() -> str:\n    return secrets.token_hex(16)",
+        "ai_issues": [
+          {
+            "name": "Insecure SECRET_KEY and ALGORITHM Environment Variables",
+            "description": "The SECRET_KEY and ALGORITHM are set using os.environ and os.getenv. This could potentially lead to issues if the environment variables are not properly secured or if they are overwritten.",
+            "severity": "High",
+            "CVSS score": "9.0",
+            "Security Recommendations": "Ensure that environment variables are properly secured and not committed to version control. Use a .env file that is not versioned.",
+            "Corrected example code": "Use a secure method to load environment variables, such as using a secrets manager or a secure .env file."
+          },
+          {
+            "name": "Potential JWT Expiration Issue",
+            "description": "The default expiration time for access tokens is set to 15 minutes if no expires_delta is provided. This could potentially lead to tokens expiring too quickly.",
+            "severity": "Medium",
+            "CVSS score": "5.0",
+            "Security Recommendations": "Consider making the default expiration time configurable or longer.",
+            "Corrected example code": "Set a more suitable default expiration time or make it configurable."
+          },
+          {
+            "name": "Insecure Direct Object Reference",
+            "description": "The verify_token function directly uses the username from the JWT payload to retrieve a user from the database. This could potentially lead to issues if the username is not properly validated.",
+            "severity": "Medium",
+            "CVSS score": "5.0",
+            "Security Recommendations": "Validate the username and ensure it conforms to expected formats.",
+            "Corrected example code": "Add input validation for the username."
+          },
+          {
+            "name": "Lack of Token Blacklisting",
+            "description": "The code does not implement token blacklisting. This could potentially lead to issues if tokens are not properly revoked.",
+            "severity": "High",
+            "CVSS score": "8.0",
+            "Security Recommendations": "Implement token blacklisting to handle token revocation.",
+            "Corrected example code": "Store invalidated tokens in a database or cache and check against them during verification."
+          },
+          {
+            "name": "Potential Exception Information Leak",
+            "description": "The code returns detailed exception messages to the user. This could potentially lead to information leaks.",
+            "severity": "Medium",
+            "CVSS score": "5.0",
+            "Security Recommendations": "Return generic error messages to the user.",
+            "Corrected example code": "Use generic error messages for exceptions."
+          },
+          {
+            "name": "Missing Input Validation for Refresh Token",
+            "description": "The refresh_access_token function does not validate the input refresh token thoroughly. This could potentially lead to issues.",
+            "severity": "Medium",
+            "CVSS score": "5.0",
+            "Security Recommendations": "Validate the input refresh token.",
+            "Corrected example code": "Add input validation for the refresh token."
+          },
+          {
+            "name": "Redundant or Unnecessary Code",
+            "description": "The verify_refresh_token function seems redundant and not used anywhere in the provided code. This could potentially lead to confusion.",
+            "severity": "Low",
+            "CVSS score": "2.0",
+            "Security Recommendations": "Remove redundant or unnecessary code.",
+            "Corrected example code": "Remove the verify_refresh_token function if not used."
+          },
+          {
+            "name": "Insecure Secret Key Generation",
+            "description": "The generate_access_key function generates a secret key but its usage is unclear. This could potentially lead to issues if not used properly.",
+            "severity": "Medium",
+            "CVSS score": "5.0",
+            "Security Recommendations": "Ensure the generated secret key is used securely.",
+            "Corrected example code": "Use the generated secret key securely."
+          }
+        ]
+      }
+    ]
+  },
+  "test.json": {
+    "file": "cyber1/cyber/user_registration/auth.py",
+    "chunks": [
+      {
+        "start_line": 1,
+        "end_line": 100,
+        "chunk_content": "# auth.py\nfrom datetime import datetime, timedelta\nfrom jose import JWTError, jwt\nfrom database import users_collection\nfrom fastapi import HTTPException\nimport secrets\nfrom . import schemas\nimport os\nfrom dotenv import load_dotenv\nload_dotenv()\n\nSECRET_KEY= os.environ[\"SECRET_KEY\"] = os.getenv(\"SECRET_KEY\")\nALGORITHM = os.environ[\"ALGORITHM\"] = os.getenv(\"ALGORITHM\")\nACCESS_TOKEN_EXPIRE_MINUTES = 30\nREFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days\n\nasync def create_access_token(data: dict, expires_delta: timedelta = None):\n    \"\"\"\n    Create a JWT access token with an optional expiration time.\n    \"\"\"\n    to_encode = data.copy()\n    if expires_delta:\n        expire = datetime.utcnow() + expires_delta\n    else:\n        expire = datetime.utcnow() + timedelta(minutes=15)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\n\nasync def create_refresh_token(data: dict, expires_delta: timedelta = None):\n    \"\"\"\n    Create a JWT refresh token with an optional expiration time.\n    \"\"\"\n    to_encode = data.copy()\n    if expires_delta:\n        expire = datetime.utcnow() + expires_delta\n    else:\n        expire = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\n\nasync def verify_token(token: str):\n    \"\"\"\n    Verify a JWT token and retrieve the associated user.\n    \"\"\"\n    credentials_exception = HTTPException(\n        status_code=401,\n        detail=\"Could not validate credentials\",\n        headers={\"WWW-Authenticate\": \"Bearer\"},\n    )\n    try:\n        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])\n        username: str = payload.get(\"data\").get(\"sub\")\n        if username is None:\n            raise credentials_exception\n        token_data = schemas.TokenData(username=username)\n    except JWTError:\n        raise credentials_exception\n\n    # Retrieve the user from MongoDB\n    user = await users_collection.find_one({\"username\": token_data.username})\n    if user is None:\n        raise credentials_exception\n    return user\n\nasync def refresh_access_token(refresh_token: str):\n    \"\"\"\n    Refresh an access token using a valid refresh token.\n    \"\"\"\n    try:\n        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])\n        username: str = payload.get(\"sub\")\n        if username is None:\n            raise HTTPException(\n                status_code=401,\n                detail=\"Invalid refresh token\",\n                headers={\"WWW-Authenticate\": \"Bearer\"},\n            )\n        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)\n        access_token = await create_access_token(\n            data={\"sub\": username}, expires_delta=access_token_expires\n        )\n        return {\"access_token\": access_token, \"token_type\": \"bearer\"}\n    except JWTError:\n        raise HTTPException(\n            status_code=401,\n            detail=\"Invalid refresh token\",\n            headers={\"WWW-Authenticate\": \"Bearer\"},\n        )\n\nasync def verify_refresh_token(token: str, secret_key: str) -> dict:\n    try:\n        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])\n        return payload\n    except JWTError:\n        return None\n\nasync def generate_access_key() -> str:\n    return secrets.token_hex(16)",
+        "ai_issues": [
+          {
+            "name": "Insecure SECRET_KEY and ALGORITHM Environment Variable Handling",
+            "description": "The code sets environment variables and then immediately retrieves them. This is unnecessary and could potentially leak values if the environment variables are not properly secured.",
+            "severity": "Medium",
+            "CVSS score": "6.5",
+            "Security Recommendations": "Directly use os.getenv('SECRET_KEY') and os.getenv('ALGORITHM') without setting the environment variables again.",
+            "Corrected example code": "SECRET_KEY = os.getenv('SECRET_KEY'); ALGORITHM = os.getenv('ALGORITHM')"
+          },
+          {
+            "name": "Potential for JWT Expiration Time Predictability",
+            "description": "If expires_delta is not provided, both access and refresh tokens have default expiration times (15 minutes for access tokens and REFRESH_TOKEN_EXPIRE_MINUTES for refresh tokens). Predictable expiration times can make tokens more vulnerable.",
+            "severity": "Low",
+            "CVSS score": "4.5",
+            "Security Recommendations": "Consider randomizing or further customizing expiration times based on user activity or specific application needs.",
+            "Corrected example code": "else: expire = datetime.utcnow() + timedelta(minutes=random.randint(10, 30)) # Example randomization"
+          },
+          {
+            "name": "Hardcoded and Predictable Token Expiration",
+            "description": "The access token expires in a fixed 15 minutes if no expires_delta is provided. This can be predictable.",
+            "severity": "Low",
+            "CVSS score": "4.5",
+            "Security Recommendations": "Randomize or make expiration times more dynamic.",
+            "Corrected example code": "else: expire = datetime.utcnow() + timedelta(minutes=random.randint(10, 30))"
+          },
+          {
+            "name": "Lack of Detailed Error Messages",
+            "description": "Error messages like 'Could not validate credentials' and 'Invalid refresh token' are generic. More detailed error handling could help in debugging but might also aid attackers.",
+            "severity": "Low",
+            "CVSS score": "3.5",
+            "Security Recommendations": "Consider logging detailed errors internally but provide less detailed messages externally.",
+            "Corrected example code": "detail=\"Authentication failed\""
+          },
+          {
+            "name": "Potential JWT Algorithm Switching",
+            "description": "The ALGORITHM variable is directly taken from an environment variable without ensuring it's one of the supported algorithms.",
+            "severity": "Medium",
+            "CVSS score": "6.0",
+            "Security Recommendations": "Validate ALGORITHM against a list of allowed algorithms.",
+            "Corrected example code": "allowed_algorithms = ['HS256', 'RS256']; if ALGORITHM not in allowed_algorithms: raise ValueError('Invalid algorithm')"
+          },
+          {
+            "name": "Insecure Direct Object Reference",
+            "description": "The verify_token function directly uses the username from the token payload to find a user. This could potentially allow enumeration of users.",
+            "severity": "Medium",
+            "CVSS score": "6.5",
+            "Security Recommendations": "Consider adding additional checks or delays to prevent enumeration.",
+            "Corrected example code": "await users_collection.find_one({\"username\": token_data.username, \"active\": True})"
+          },
+          {
+            "name": "Secret Key Generation",
+            "description": "The generate_access_key function generates secrets but isn't used in provided code. Ensure it's used properly for secrets, not for JWTs.",
+            "severity": "Low",
+            "CVSS score": "3.0",
+            "Security Recommendations": "Use it appropriately for generating secrets, consider adding a check for sufficient randomness.",
+            "Corrected example code": "return secrets.token_urlsafe(32) # More secure for secrets"
+          },
+          {
+            "name": "Unspecific Exception Handling",
+            "description": "The code catches JWTError but does not account for other potential exceptions that might occur during database operations or token creation.",
+            "severity": "Medium",
+            "CVSS score": "6.0",
+            "Security Recommendations": "Implement broader exception handling to catch and handle potential errors.",
+            "Corrected example code": "except Exception as e: # Handle the exception or log it"
+          },
+          {
+            "name": "Refresh Token Expiration",
+            "description": "The refresh token's expiration is set to 7 days. Consider if this aligns with your security requirements.",
+            "severity": "Low",
+            "CVSS score": "4.0",
+            "Security Recommendations": "Adjust based on compliance and security policies.",
+            "Corrected example code": "N/A - depends on policy"
+          }
+        ]
+      }
+    ]
+  }
+}
