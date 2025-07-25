@@ -74,3 +74,112 @@ export const logout = async (accessToken: string, refreshToken: string) => {
     throw error;
   }
 };
+
+
+export const showAllProjects = async (accessToken: string) => {
+  try {
+    const response = await apiInstance.post(
+      "/secure_scanner/projects",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Create project failed", error);
+    throw error;
+  }
+};
+
+export const uploadFiles = async (formData: FormData, accessToken?: string) => {
+  try {
+    const response = await apiInstance.post("/secure_scanner/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Accept: "application/json",
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("File upload failed", error);
+    throw error;
+  }
+};
+
+export const startScan = async (projectId: string, accessToken?: string) => {
+  try {
+    const response = await apiInstance.post(
+      `/secure_scanner/start-scan/${projectId}`,
+      {},
+      {
+        headers: {
+          Accept: "application/json",
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Start scan failed", error);
+    throw error;
+  }
+};
+
+export const stopScan = async (projectId: string, accessToken?: string) => {
+  try {
+    const response = await apiInstance.post(
+      `/secure_scanner/stop-scan/${projectId}`,
+      {},
+      {
+        headers: {
+          Accept: "application/json",
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Stop scan failed", error);
+    throw error;
+  }
+};
+
+export const getScanStatus = async (projectId: string, accessToken?: string) => {
+  try {
+    const response = await apiInstance.get(`/secure_scanner/scan-status/${projectId}`, {
+      headers: {
+        Accept: "application/json",
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Get scan status failed", error);
+    throw error;
+  }
+};
+
+export const getScanReport = async (projectId: string, accessToken?: string) => {
+  try {
+    const response = await apiInstance.get(`/secure_scanner/reports/${projectId}`, {
+      headers: {
+        Accept: "application/json",
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Get scan report failed", error);
+    throw error;
+  }
+};

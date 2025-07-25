@@ -1,0 +1,126 @@
+[
+  {
+    "Region": "us-east-1",
+    "VPCs": [
+      {
+        "VPC_ID": "vpc-456xyz",
+        "CIDR": "10.1.0.0/16",
+        "Internet_Gateway": {
+          "IGW_ID": "igw-789ghi",
+          "Attached_VPC": "vpc-456xyz",
+          "Routes": [
+            {
+              "Destination": ["0.0.0.0/0"],
+              "Target": "igw-789ghi",
+              "Description": "Route to the Internet"
+            }
+          ]
+        },
+        "Subnets": [
+          {
+            "Subnet_ID": "subnet-aaa999",
+            "CIDR": "10.1.1.0/24",
+            "Availability_Zone": "us-east-1a",
+            "NACL": {
+              "NACL_ID": "acl-aaa111",
+              "Inbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "TCP",
+                  "Port": "80",
+                  "Source": ["10.1.2.0/24", "10.1.3.50", "172.16.0.0/12"],
+                  "Action": "ALLOW"
+                },
+                {
+                  "Rule": 110,
+                  "Protocol": "TCP",
+                  "Port": "443",
+                  "Source": "192.168.1.0/24",
+                  "Action": "ALLOW"
+                }
+              ],
+              "Outbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Destination": ["0.0.0.0/0", "8.8.8.8"],
+                  "Action": "ALLOW"
+                }
+              ]
+            },
+            "Security_Groups": []
+          },
+          {
+            "Subnet_ID": "subnet-bbb888",
+            "CIDR": "10.1.2.0/24",
+            "Availability_Zone": "us-east-1b",
+            "NACL": {
+              "NACL_ID": "acl-bbb222",
+              "Inbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Source": ["10.1.1.100", "10.1.1.101"],
+                  "Action": "ALLOW"
+                },
+                {
+                  "Rule": 120,
+                  "Protocol": "UDP",
+                  "Port": "53",
+                  "Source": "10.1.0.0/16",
+                  "Action": "ALLOW"
+                }
+              ],
+              "Outbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Destination": ["10.1.1.0/24", "10.1.3.0/24"],
+                  "Action": "ALLOW"
+                }
+              ]
+            },
+            "Security_Groups": []
+          },
+          {
+            "Subnet_ID": "subnet-ccc777",
+            "CIDR": "10.1.3.0/24",
+            "Availability_Zone": "us-east-1c",
+            "NACL": {
+              "NACL_ID": "acl-ccc333",
+              "Inbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Source": ["10.1.1.100", "10.1.2.100", "203.0.113.0/24"],
+                  "Action": "ALLOW"
+                }
+              ],
+              "Outbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "TCP",
+                  "Port": "443",
+                  "Destination": "0.0.0.0/0",
+                  "Action": "ALLOW"
+                },
+                {
+                  "Rule": 110,
+                  "Protocol": "UDP",
+                  "Port": "53",
+                  "Destination": ["1.1.1.1", "8.8.4.4"],
+                  "Action": "ALLOW"
+                }
+              ]
+            },
+            "Security_Groups": []
+          }
+        ]
+      }
+    ]
+  }
+]

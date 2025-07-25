@@ -29,14 +29,15 @@ const data = {
       title: "Getting Started",
       url: "#",
       items: [
-        {
-          title: "Cloud Scanner",
-          url: "/cloud-scanner",
-          isActive: true,
-        },
+        // {
+        //   title: "Cloud Scanner",
+        //   url: "/cloud-scanner",
+        //   isActive: true,
+        // },
         {
           title: "Secure Code",
           url: "/secure-code",
+          isActive: true,
         },
       ],
     },

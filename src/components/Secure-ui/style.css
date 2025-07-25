@@ -1,0 +1,5 @@
+/* styles/global.css or inside <style> tag */
+.page-break-avoid {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}

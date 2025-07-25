@@ -1,0 +1,196 @@
+[
+  {
+    "Region": "us-east-1",
+    "VPCs": [
+      {
+        "VPC_ID": "vpc-123abc",
+        "CIDR": "10.0.0.0/16",
+        "Internet_Gateway": {
+          "IGW_ID": "igw-456def",
+          "Attached_VPC": "vpc-123abc",
+          "Routes": [
+            {
+              "Destination": ["0.0.0.0/0"],
+              "Target": "igw-456def",
+              "Description": "Route to the Internet"
+            }
+          ]
+        },
+        "Subnets": [
+          {
+            "Subnet_ID": "subnet-aaa111",
+            "CIDR": "10.0.1.0/24",
+            "Availability_Zone": "us-east-1a",
+            "NACL": {
+              "NACL_ID": "acl-xyz123",
+              "Inbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "TCP",
+                  "Port": "ALL",
+                  "Source": ["10.0.2.0/24"],
+                  "Action": "ALLOW"
+                }
+              ],
+              "Outbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Destination": ["0.0.0.0/0"],
+                  "Action": "ALLOW"
+                }
+              ]
+            },
+            "Security_Groups": [
+              {
+                "SG_ID": "sg-abc123",
+                "Description": "Allow outbound traffic to EC2 in subnet-2",
+                "Inbound_Rules": [
+                  {
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Source": ["10.0.2.0/24"],
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": ["10.0.2.100"],
+                    "Action": "ALLOW"
+                  }
+                ],
+                "EC2_Instances": [
+                  {
+                    "Instance_ID": "i-1234567890abcdef",
+                    "Instance_Type": "t2.micro",
+                    "Private_IP": "10.0.1.100",
+                    "Security_Groups": [
+                      "sg-abc123"
+                    ],
+                    "IAM_Role": "EC2ReadOnlyRole"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Subnet_ID": "subnet-bbb222",
+            "CIDR": "10.0.2.0/24",
+            "Availability_Zone": "us-east-1b",
+            "NACL": {
+              "NACL_ID": "acl-uvw456",
+              "Inbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Source": ["10.0.1.100"],
+                  "Action": "ALLOW"
+                }
+              ],
+              "Outbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Destination": ["10.0.1.0/24"],
+                  "Action": "ALLOW"
+                }
+              ]
+            },
+            "Security_Groups": [
+              {
+                "SG_ID": "sg-def456",
+                "Description": "Only allow traffic from EC2 in subnet-1",
+                "Inbound_Rules": [
+                  {
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Source": ["10.0.1.100"],
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": ["0.0.0.0/0"],
+                    "Action": "ALLOW"
+                  }
+                ],
+                "EC2_Instances": [
+                  {
+                    "Instance_ID": "i-0987654321fedcba",
+                    "Instance_Type": "t3.micro",
+                    "Private_IP": "10.0.2.100",
+                    "Security_Groups": [
+                      "sg-def456"
+                    ],
+                    "IAM_Role": "WebServerRole"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Subnet_ID": "subnet-ccc333",
+            "CIDR": "10.0.3.0/24",
+            "Availability_Zone": "us-east-1c",
+            "NACL": {
+              "NACL_ID": "acl-stu789",
+              "Inbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Source": ["10.0.1.100"],
+                  "Action": "ALLOW"
+                }
+              ],
+              "Outbound_Rules": [
+                {
+                  "Rule": 100,
+                  "Protocol": "ALL",
+                  "Port": "ALL",
+                  "Destination": ["0.0.0.0/0"],
+                  "Action": "ALLOW"
+                }
+              ]
+            },
+            "Security_Groups": [
+              {
+                "SG_ID": "sg-ghi789",
+                "Description": "Restrict S3 bucket access to Subnet 2 EC2",
+                "Inbound_Rules": [
+                  {
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Source": ["10.0.1.100"],
+                    "Action": "ALLOW"
+                  }
+                ],
+                "Outbound_Rules": [
+                  {
+                    "Protocol": "ALL",
+                    "Port": "ALL",
+                    "Destination": ["0.0.0.0/0"],
+                    "Action": "ALLOW"
+                  }
+                ],
+                "S3_Bucket": [
+                  {
+                    "Bucket_Name": "my-secure-bucket",
+                    "Access_Restriction": "Subnet-2 EC2 only"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

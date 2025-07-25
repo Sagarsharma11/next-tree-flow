@@ -9,8 +9,8 @@ import UploadFiles from '@/components/UploadFiles/UploadFiles'
 import ScanZone from '@/components/ScanZone/ScanZone'
 
 const page = () => {
-    const [scanFile, setScanFile] = useState(false);
-    const [scanComplete, setScanComplete] = useState(false);
+    const [scanFile, setScanFile] = useState(true);
+    const [scanComplete, setScanComplete] = useState(true);
     return (
         <DashboardLayout>
             <div className={styles.mainContainer} >

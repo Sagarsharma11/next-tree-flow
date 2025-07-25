@@ -23,6 +23,7 @@
     "cytoscape": "^3.31.2",
     "cytoscape-dagre": "^2.5.0",
     "d3": "^7.9.0",
+    "html2pdf.js": "^0.10.3",
     "ip": "^2.0.1",
     "ipaddr.js": "^2.2.0",
     "lucide-react": "^0.474.0",
