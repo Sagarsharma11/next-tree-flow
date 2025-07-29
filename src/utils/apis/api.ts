@@ -23,6 +23,7 @@ export const loginApi = async (payload: { username: string; password: string; })
     const response = await apiInstance.post("/token", payload);
     return response;
   } catch (error) {
+
     console.error("Login API call failed", error);
     throw error;
   }
@@ -33,7 +34,7 @@ export const verifyToken = async (token: string) => {
     const response = await apiInstance.post("/VerifyToken", {},
       {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -49,7 +50,7 @@ export const refreshToken = async (token: string) => {
     const response = await apiInstance.post("/refresh", {},
       {
         headers: {
-          refresh_token: `${token}`, 
+          refresh_token: `${token}`,
         },
       }
     );
@@ -154,19 +155,24 @@ export const stopScan = async (projectId: string, accessToken?: string) => {
 
 export const getScanStatus = async (projectId: string, accessToken?: string) => {
   try {
-    const response = await apiInstance.get(`/secure_scanner/scan-status/${projectId}`, {
-      headers: {
-        Accept: "application/json",
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-      },
-    });
-
+    const response = await apiInstance.post(`/secure_scanner/scan-status/${projectId}`,
+      {},
+      {
+        headers: {
+          Accept: "application/json",
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      });
+    console.log("status scan ", response)
     return response.data;
   } catch (error) {
     console.error("Get scan status failed", error);
     throw error;
   }
 };
+
+
+
 
 export const getScanReport = async (projectId: string, accessToken?: string) => {
   try {

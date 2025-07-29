@@ -1,27 +1,66 @@
-import React from 'react'
+
+
+import React, { useEffect, useState } from 'react';
 import { MdFolderZip } from "react-icons/md";
+import { getLocalStorage } from '@/utils/localstorage/localStorage';
+import { showAllProjects, startScan } from '@/utils/apis/api';
 
-const UploadFiles = ({ setScanFile }) => {
+const UploadFiles = ({ setScanFile, setScanFileName }:any) => {
+  const [projects, setProjects] = useState<string[]>([]);
+  const accessToken = getLocalStorage("token")?.replace(/['"]+/g, "") || "";
 
-    const handleChange = () => {
-        setScanFile(true)
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await showAllProjects(accessToken);
+        // Assuming response is like: { projects: ['file1.zip', 'file2.zip', ...] }
+        setProjects([...data.Projects]);
+        console.log("data ", data["Projects"])
+      } catch (error) {
+        console.error("Failed to fetch projects", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+//   const handleChange = () => {
+//     setScanFile(true);
+//   };
+
+  const handleScanStart = async (projectId: string) => {
+    try {
+      console.log(`Starting scan for: ${projectId}`);
+      setScanFileName(projectId)
+      const res = await startScan(projectId, accessToken);
+      console.log("Scan started successfully:", res);
+      setScanFile(true);
+    } catch (error) {
+      console.error("Scan start failed for", projectId, error);
     }
+  };
 
-    return (
-        <div className='flex gap-1 flex-wrap w-full'>
-            {
-                [0, 1, 2, 3].map((ele) => (
-                    <div className='flex flex-col justify-center border items-center' onClick={handleChange}>
-                        <MdFolderZip
-                            className="text-blue-500 cursor-pointer transition-transform duration-300 hover:text-blue-700 hover:scale-110"
-                            size={180}
-                        />
-                        <p>{ele}.zip</p>
-                    </div>
-                ))
-            }
-        </div>
-    )
-}
+  return (
+    <div className='flex gap-1 flex-wrap w-full'>
+      {projects?.length > 0 ? (
+        projects.map((file, idx) => (
+          <div
+            key={idx}
+            className='flex flex-col justify-center border items-center p-4 rounded-md hover:bg-gray-100 cursor-pointer'
+            onClick={()=>handleScanStart(file)}
+          >
+            <MdFolderZip
+              className="text-blue-500 transition-transform duration-300 hover:text-blue-700 hover:scale-110"
+              size={180}
+            />
+            <p>{file}</p>
+          </div>
+        ))
+      ) : (
+        <p className="text-gray-500 italic">No uploaded projects found.</p>
+      )}
+    </div>
+  );
+};
 
-export default UploadFiles
+export default UploadFiles;
