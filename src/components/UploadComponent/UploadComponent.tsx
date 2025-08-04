@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { getLocalStorage } from '@/utils/localstorage/localStorage';
 import { uploadFiles } from '@/utils/apis/api';
 
-const UploadComponent = () => {
+const UploadComponent = ({ setRefreshTrigger }) => {
     // const accessToken = getLocalStorage("token")?.replace(/['"]+/g, "") || "";
     const refreshToken = getLocalStorage("refresh_token")?.replace(/['"]+/g, "") || "";
 
@@ -24,6 +24,8 @@ const UploadComponent = () => {
         try {
             const response = await uploadFiles(formData, accessToken);
             console.log("Upload Success:", response);
+            // ✅ Trigger refresh
+            setRefreshTrigger(prev => prev + 1);
             alert("File uploaded successfully.");
         } catch (error) {
             console.error("Upload failed:", error);
@@ -35,10 +37,10 @@ const UploadComponent = () => {
         <div className="flex justify-between items-center w-full ">
             <div className='flex flex-col gap-2'>
                 <Label className='font-bold text-xl' htmlFor="picture">Upload a zip</Label>
-                <Input  ref={fileInputRef} className='cursor-pointer' id="picture" type="file" />
+                <Input ref={fileInputRef} className='cursor-pointer' id="picture" type="file" />
             </div>
             <div>
-                <button  onClick={handleUpload} className="px-4 py-2 bg-stone-900 text-white border-t-2 border-t-neutral-900 rounded-md hover:bg-stone-800 transition">
+                <button onClick={handleUpload} className="px-4 py-2 bg-stone-900 text-white border-t-2 border-t-neutral-900 rounded-md hover:bg-stone-800 transition">
                     Upload
                 </button>
             </div>

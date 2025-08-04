@@ -118,7 +118,7 @@ const FileAccordion: React.FC<{
     setOpen(forceOpen);
   }, [forceOpen]);
 
-  const totalIssues = fileData.chunks.reduce((acc, chunk) => acc + chunk.ai_issues.length, 0);
+  const totalIssues = fileData?.chunks?.reduce((acc, chunk) => acc + chunk?.ai_issues?.length, 0);
 
   return (
     <Card className="border mb-4 page-break-avoid">
@@ -132,15 +132,15 @@ const FileAccordion: React.FC<{
             {totalIssues} issue(s) (
             <span style={{ color: '#dc2626' }}>
               {fileData.chunks.reduce((acc, chunk) =>
-                acc + chunk.ai_issues.filter(i => i.severity.toLowerCase() === 'high').length, 0)} High
+                acc + chunk?.ai_issues?.filter(i => i?.severity?.toLowerCase() === 'high').length, 0)} High
             </span>,{" "}
             <span style={{ color: '#d97706' }}>
               {fileData.chunks.reduce((acc, chunk) =>
-                acc + chunk.ai_issues.filter(i => i.severity.toLowerCase() === 'medium').length, 0)} Medium
+                acc + chunk?.ai_issues?.filter(i => i.severity?.toLowerCase() === 'medium').length, 0)} Medium
             </span>,{" "}
             <span style={{ color: '#065f46' }}>
               {fileData.chunks.reduce((acc, chunk) =>
-                acc + chunk.ai_issues.filter(i => i.severity.toLowerCase() === 'low').length, 0)} Low
+                acc + chunk?.ai_issues?.filter(i => i.severity.toLowerCase() === 'low').length, 0)} Low
             </span>
             )
           </span>

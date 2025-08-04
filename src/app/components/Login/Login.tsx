@@ -42,6 +42,7 @@ const Login = () => {
             if (response.status === 200) {
                 setLocalStorage("token", response.data.access_token);
                 setLocalStorage("refresh_token", response.data.refresh_token);
+                setLocalStorage("email", data.username)
                 router.replace("/dashboard");
             }
             setMessage(response.data.message || "Signup successful!");
@@ -49,6 +50,7 @@ const Login = () => {
             setMessage("Signup failed. Please try again.");
         }
     };
+    
     return (
         <div >
             <Card>

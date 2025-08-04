@@ -176,12 +176,14 @@ export const getScanStatus = async (projectId: string, accessToken?: string) => 
 
 export const getScanReport = async (projectId: string, accessToken?: string) => {
   try {
-    const response = await apiInstance.get(`/secure_scanner/reports/${projectId}`, {
-      headers: {
-        Accept: "application/json",
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-      },
-    });
+    const response = await apiInstance.post(`/secure_scanner/reports/${projectId}`,
+      {},
+      {
+        headers: {
+          Accept: "application/json",
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      });
 
     return response.data;
   } catch (error) {

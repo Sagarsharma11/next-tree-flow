@@ -130,14 +130,15 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { getScanStatus, startScan, stopScan } from '@/utils/apis/api';
+import { getScanReport, getScanStatus, startScan, stopScan } from '@/utils/apis/api';
 import { getLocalStorage } from '@/utils/localstorage/localStorage';
 import ScanProgress from '../ScanProgress/ScanProgress';
 
 const ScanZone = ({
   setScanComplete,
   scanFileName,
-  scanFile
+  scanFile,
+  setData
 }: any) => {
   const [progress, setProgress] = useState(0);
   const [isScanning, setIsScanning] = useState(true);
@@ -150,15 +151,110 @@ const ScanZone = ({
 
   const accessToken = getLocalStorage('token')?.replace(/['"]+/g, '') || '';
 
-  useEffect(() => {
-    if (!accessToken || !scanFileName) return;
-    let interval: NodeJS.Timeout;
+  // useEffect(() => {
+  //   if (!accessToken || !scanFileName) return;
+  //   let interval: NodeJS.Timeout;
 
+  //   const fetchScanStatus = async () => {
+  //     try {
+  //       const data = await getScanStatus(scanFileName, accessToken);
+
+  //       // Update scanData state
+  //       setScanData({
+  //         files_total: data.files_total,
+  //         files_done: data.files_done,
+  //         completed: data.completed,
+  //         stop: data.stop,
+  //       });
+
+  //       const calculatedProgress = (data.files_done / data.files_total) * 100 || 0;
+  //       setProgress(calculatedProgress);
+
+  //       if (data.completed || calculatedProgress >= 100) {
+  //         clearInterval(interval);
+  //         setScanComplete(true);
+  //         setIsScanning(false);
+
+  //         try {
+  //           const report = await getScanReport(scanFileName, accessToken);
+  //           const data  = report?.report["test@mail.com"];
+  //           console.log("📝 Scan Report:", JSON.stringify(report, null, 2));
+  //           setData(report)
+  //         } catch (reportErr) {
+  //           console.error("Failed to fetch scan report:", reportErr);
+  //         }
+
+  //       }
+  //     } catch (error) {
+  //       // console.error('Failed to fetch scan status:', error);
+  //       // clearInterval(interval);
+  //       console.error('Failed to fetch scan status:', error);
+  //       // Optional: If the error is fatal (like 401 Unauthorized), stop retrying
+  //       if (error?.response?.status === 401 || error?.response?.status === 403) {
+  //         console.warn("Authorization error, stopping scan polling.");
+  //         clearInterval(interval);
+  //         setIsScanning(false);
+  //       }
+  //     }
+  //   };
+
+  //   if (scanFileName && isScanning) {
+  //     fetchScanStatus(); // initial fetch
+  //     interval = setInterval(fetchScanStatus, 5000);
+  //   }
+
+  //   return () => clearInterval(interval);
+  // }, [scanFileName, accessToken, isScanning, setScanComplete]);
+
+
+useEffect(() => {
+  if (!accessToken || !scanFileName) return;
+
+  let interval: NodeJS.Timeout;
+
+  const checkScanFlow = async () => {
+    try {
+      // Step 1: Try to fetch existing report
+      const report = await getScanReport(scanFileName, accessToken);
+      const data = report?.report["test@mail.com"];
+
+      if (data) {
+        console.log("✅ Existing report found");
+        setData(data);
+        setScanComplete(true);
+        setIsScanning(false);
+        setProgress(100);
+
+        // Step 2: Fetch scan status just once for files_total/files_done info
+        try {
+          const scanStatus = await getScanStatus(scanFileName, accessToken);
+          console.log("ℹ️ Scan status for existing report:", scanStatus);
+
+          setScanData({
+            files_total: scanStatus.files_total,
+            files_done: scanStatus.files_done,
+            completed: scanStatus.completed,
+            stop: scanStatus.stop,
+          });
+        } catch (statusErr) {
+          console.error("❌ Failed to fetch scan status:", statusErr);
+        }
+
+        return; // ✅ Done
+      }
+    } catch (err: any) {
+      if (err?.response?.status !== 404) {
+        console.error("❌ Error fetching scan report:", err);
+        return; // Stop on unexpected error
+      }
+      console.log("📭 No existing report found. Starting scan polling...");
+    }
+
+    // Step 3: No report, so poll scan status every 5s
     const fetchScanStatus = async () => {
       try {
         const data = await getScanStatus(scanFileName, accessToken);
 
-        // Update scanData state
         setScanData({
           files_total: data.files_total,
           files_done: data.files_done,
@@ -173,20 +269,36 @@ const ScanZone = ({
           clearInterval(interval);
           setScanComplete(true);
           setIsScanning(false);
+
+          // Fetch report after scan completes
+          try {
+            const finalReport = await getScanReport(scanFileName, accessToken);
+            const data = finalReport?.report["test@mail.com"];
+            console.log("📦 Final Report:", finalReport);
+            setData(data);
+          } catch (reportErr) {
+            console.error("❌ Failed to fetch final report:", reportErr);
+          }
         }
-      } catch (error) {
-        console.error('Failed to fetch scan status:', error);
-        clearInterval(interval);
+      } catch (error: any) {
+        console.error("❌ Error fetching scan status:", error);
+        if (error?.response?.status === 401 || error?.response?.status === 403) {
+          clearInterval(interval);
+          setIsScanning(false);
+        }
       }
     };
 
-    if (scanFileName && isScanning) {
-      fetchScanStatus(); // initial fetch
-      interval = setInterval(fetchScanStatus, 1000);
-    }
+    setIsScanning(true);
+    fetchScanStatus(); // Initial
+    interval = setInterval(fetchScanStatus, 5000);
+  };
 
-    return () => clearInterval(interval);
-  }, [scanFileName, accessToken, isScanning, setScanComplete]);
+  checkScanFlow();
+
+  return () => clearInterval(interval);
+}, [scanFileName, accessToken, setScanComplete]);
+
 
   const handleStopScan = async () => {
     try {
@@ -218,21 +330,23 @@ const ScanZone = ({
           {isScanning ? '🔍 Running deep scan... almost there!' : '⏹️ Scan paused or completed.'}
         </p>
 
-        {isScanning ? (
+        {isScanning && (
           <button
             onClick={handleStopScan}
             className="px-4 py-2 bg-red-600 text-white border-t-2 border-t-neutral-900 rounded-md hover:bg-red-500 transition"
           >
             Stop Scan
           </button>
-        ) : (
-          <button
-            onClick={handleStartScan}
-            className="px-4 py-2 bg-green-600 text-white border-t-2 border-t-green-800 rounded-md hover:bg-green-500 transition"
-          >
-            Start Scan
-          </button>
-        )}
+        )
+          // : (
+          // <button
+          //   onClick={handleStartScan}
+          //   className="px-4 py-2 bg-green-600 text-white border-t-2 border-t-green-800 rounded-md hover:bg-green-500 transition"
+          // >
+          //   Start Scan
+          // </button>
+          // )
+        }
       </div>
 
       {/* Progress */}
@@ -250,8 +364,8 @@ const ScanZone = ({
           {scanData.completed
             ? "✅ Completed"
             : scanData.stop
-            ? "⏹️ Stopped"
-            : "🔄 In Progress"}
+              ? "⏹️ Stopped"
+              : "🔄 In Progress"}
         </p>
       </div>
     </div>

@@ -25,7 +25,7 @@ const ScanProgress: React.FC<ScanProgressProps> = ({ progress, fileName, estimat
           <span className="font-semibold text-white">📁 File:</span> {fileName}
         </div>
         <div>
-          <span className="font-semibold text-white">⏳ Estimated time left:</span> {estimatedTime}
+          {/* <span className="font-semibold text-white">⏳ Estimated time left:</span> {estimatedTime} */}
         </div>
       </div>
     </div>
