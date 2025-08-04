@@ -112,6 +112,7 @@ const FileAccordion: React.FC<{
   forceOpen?: boolean;
   generatePdf: any
 }> = ({ filename, fileData, forceOpen = false, generatePdf }) => {
+  // console.log(" ==>", filename, fileData)
   const [open, setOpen] = useState(forceOpen);
 
   useEffect(() => {
@@ -127,23 +128,58 @@ const FileAccordion: React.FC<{
         onClick={() => setOpen(!open)}
       >
         <div className="flex justify-between items-center">
-          <span className="font-semibold">{filename}</span>
+          <span className="font-semibold">
+            {
+              //@ts-ignore
+              fileData?.file
+            }
+          </span>
           <span className="text-sm text-gray-600">
             {totalIssues} issue(s) (
             <span style={{ color: '#dc2626' }}>
-              {fileData.chunks.reduce((acc, chunk) =>
-                acc + chunk?.ai_issues?.filter(i => i?.severity?.toLowerCase() === 'high').length, 0)} High
-            </span>,{" "}
+              {
+                fileData?.chunks?.reduce(
+                  (acc, chunk) =>
+                    acc +
+                    (Array.isArray(chunk?.ai_issues)
+                      ? chunk.ai_issues.filter(i => i?.severity?.toLowerCase() === 'high').length
+                      : 0),
+                  0
+                )
+              }{" "}
+              High
+            </span>
+            ,{" "}
             <span style={{ color: '#d97706' }}>
-              {fileData.chunks.reduce((acc, chunk) =>
-                acc + chunk?.ai_issues?.filter(i => i.severity?.toLowerCase() === 'medium').length, 0)} Medium
-            </span>,{" "}
+              {
+                fileData?.chunks?.reduce(
+                  (acc, chunk) =>
+                    acc +
+                    (Array.isArray(chunk?.ai_issues)
+                      ? chunk.ai_issues.filter(i => i?.severity?.toLowerCase() === 'medium').length
+                      : 0),
+                  0
+                )
+              }{" "}
+              Medium
+            </span>
+            ,{" "}
             <span style={{ color: '#065f46' }}>
-              {fileData.chunks.reduce((acc, chunk) =>
-                acc + chunk?.ai_issues?.filter(i => i.severity.toLowerCase() === 'low').length, 0)} Low
+              {
+                fileData?.chunks?.reduce(
+                  (acc, chunk) =>
+                    acc +
+                    (Array.isArray(chunk?.ai_issues)
+                      ? chunk.ai_issues.filter(i => i?.severity?.toLowerCase() === 'low').length
+                      : 0),
+                  0
+                )
+              }{" "}
+              Low
             </span>
             )
           </span>
+
         </div>
       </div>
       {open && (
@@ -184,7 +220,7 @@ const SecurityIssuesUI: React.FC<SecurityIssuesProps> = ({ issuesData }) => {
         })
         .from(reportRef.current)
         .save();
-        setGeneratePdf(false)
+      setGeneratePdf(false)
     }, 300);
   };
 

@@ -138,7 +138,8 @@ const ScanZone = ({
   setScanComplete,
   scanFileName,
   scanFile,
-  setData
+  setData,
+  scanReport
 }: any) => {
   const [progress, setProgress] = useState(0);
   const [isScanning, setIsScanning] = useState(true);
@@ -151,153 +152,99 @@ const ScanZone = ({
 
   const accessToken = getLocalStorage('token')?.replace(/['"]+/g, '') || '';
 
-  // useEffect(() => {
-  //   if (!accessToken || !scanFileName) return;
-  //   let interval: NodeJS.Timeout;
+  useEffect(() => {
+    if (!accessToken || !scanFileName) return;
 
-  //   const fetchScanStatus = async () => {
-  //     try {
-  //       const data = await getScanStatus(scanFileName, accessToken);
+    let interval: NodeJS.Timeout;
 
-  //       // Update scanData state
-  //       setScanData({
-  //         files_total: data.files_total,
-  //         files_done: data.files_done,
-  //         completed: data.completed,
-  //         stop: data.stop,
-  //       });
-
-  //       const calculatedProgress = (data.files_done / data.files_total) * 100 || 0;
-  //       setProgress(calculatedProgress);
-
-  //       if (data.completed || calculatedProgress >= 100) {
-  //         clearInterval(interval);
-  //         setScanComplete(true);
-  //         setIsScanning(false);
-
-  //         try {
-  //           const report = await getScanReport(scanFileName, accessToken);
-  //           const data  = report?.report["test@mail.com"];
-  //           console.log("📝 Scan Report:", JSON.stringify(report, null, 2));
-  //           setData(report)
-  //         } catch (reportErr) {
-  //           console.error("Failed to fetch scan report:", reportErr);
-  //         }
-
-  //       }
-  //     } catch (error) {
-  //       // console.error('Failed to fetch scan status:', error);
-  //       // clearInterval(interval);
-  //       console.error('Failed to fetch scan status:', error);
-  //       // Optional: If the error is fatal (like 401 Unauthorized), stop retrying
-  //       if (error?.response?.status === 401 || error?.response?.status === 403) {
-  //         console.warn("Authorization error, stopping scan polling.");
-  //         clearInterval(interval);
-  //         setIsScanning(false);
-  //       }
-  //     }
-  //   };
-
-  //   if (scanFileName && isScanning) {
-  //     fetchScanStatus(); // initial fetch
-  //     interval = setInterval(fetchScanStatus, 5000);
-  //   }
-
-  //   return () => clearInterval(interval);
-  // }, [scanFileName, accessToken, isScanning, setScanComplete]);
-
-
-useEffect(() => {
-  if (!accessToken || !scanFileName) return;
-
-  let interval: NodeJS.Timeout;
-
-  const checkScanFlow = async () => {
-    try {
-      // Step 1: Try to fetch existing report
-      const report = await getScanReport(scanFileName, accessToken);
-      const data = report?.report["test@mail.com"];
-
-      if (data) {
-        console.log("✅ Existing report found");
-        setData(data);
-        setScanComplete(true);
-        setIsScanning(false);
-        setProgress(100);
-
-        // Step 2: Fetch scan status just once for files_total/files_done info
-        try {
-          const scanStatus = await getScanStatus(scanFileName, accessToken);
-          console.log("ℹ️ Scan status for existing report:", scanStatus);
-
-          setScanData({
-            files_total: scanStatus.files_total,
-            files_done: scanStatus.files_done,
-            completed: scanStatus.completed,
-            stop: scanStatus.stop,
-          });
-        } catch (statusErr) {
-          console.error("❌ Failed to fetch scan status:", statusErr);
-        }
-
-        return; // ✅ Done
-      }
-    } catch (err: any) {
-      if (err?.response?.status !== 404) {
-        console.error("❌ Error fetching scan report:", err);
-        return; // Stop on unexpected error
-      }
-      console.log("📭 No existing report found. Starting scan polling...");
-    }
-
-    // Step 3: No report, so poll scan status every 5s
-    const fetchScanStatus = async () => {
+    const checkScanFlow = async () => {
       try {
-        const data = await getScanStatus(scanFileName, accessToken);
-
-        setScanData({
-          files_total: data.files_total,
-          files_done: data.files_done,
-          completed: data.completed,
-          stop: data.stop,
-        });
-
-        const calculatedProgress = (data.files_done / data.files_total) * 100 || 0;
-        setProgress(calculatedProgress);
-
-        if (data.completed || calculatedProgress >= 100) {
-          clearInterval(interval);
-          setScanComplete(true);
-          setIsScanning(false);
-
-          // Fetch report after scan completes
-          try {
-            const finalReport = await getScanReport(scanFileName, accessToken);
-            const data = finalReport?.report["test@mail.com"];
-            console.log("📦 Final Report:", finalReport);
+        // Step 1: Try to fetch existing report
+        if (!scanReport?.length && scanData.completed === true) {
+          const report = await getScanReport(scanFileName, accessToken);
+          const data = report?.report["test@mail.com"];
+          if (data) {
+            console.log("✅ Existing report found");
             setData(data);
-          } catch (reportErr) {
-            console.error("❌ Failed to fetch final report:", reportErr);
+            setScanComplete(true);
+            setIsScanning(false);
+            setProgress(100);
+
+            // Step 2: Fetch scan status just once for files_total/files_done info
+            try {
+              const scanStatus = await getScanStatus(scanFileName, accessToken);
+              console.log("ℹ️ Scan status for existing report:", scanStatus);
+              
+              setScanData({
+                files_total: scanStatus.files_total,
+                files_done: scanStatus.files_done,
+                completed: scanStatus.completed,
+                stop: scanStatus.stop,
+              });
+            } catch (statusErr) {
+              console.error("❌ Failed to fetch scan status:", statusErr);
+            }
+
+            return; // ✅ Done
           }
         }
-      } catch (error: any) {
-        console.error("❌ Error fetching scan status:", error);
-        if (error?.response?.status === 401 || error?.response?.status === 403) {
-          clearInterval(interval);
-          setIsScanning(false);
+
+      } catch (err: any) {
+        if (err?.response?.status !== 404) {
+          console.error("❌ Error fetching scan report:", err);
+          return; // Stop on unexpected error
         }
+        console.log("📭 No existing report found. Starting scan polling...");
       }
+
+      // Step 3: No report, so poll scan status every 5s
+      const fetchScanStatus = async () => {
+        try {
+          const data = await getScanStatus(scanFileName, accessToken);
+
+          setScanData({
+            files_total: data.files_total,
+            files_done: data.files_done,
+            completed: data.completed,
+            stop: data.stop,
+          });
+
+          const calculatedProgress = (data.files_done / data.files_total) * 100 || 0;
+          setProgress(calculatedProgress);
+
+          if (data.completed || calculatedProgress >= 100) {
+            clearInterval(interval);
+            setScanComplete(true);
+            setIsScanning(false);
+
+            // Fetch report after scan completes
+            try {
+              const finalReport = await getScanReport(scanFileName, accessToken);
+              const data = finalReport?.report["test@mail.com"];
+              console.log("📦 Final Report:", finalReport);
+              setData(data);
+            } catch (reportErr) {
+              console.error("❌ Failed to fetch final report:", reportErr);
+            }
+          }
+        } catch (error: any) {
+          console.error("❌ Error fetching scan status:", error);
+          if (error?.response?.status === 401 || error?.response?.status === 403) {
+            clearInterval(interval);
+            setIsScanning(false);
+          }
+        }
+      };
+
+      setIsScanning(true);
+      fetchScanStatus(); // Initial
+      interval = setInterval(fetchScanStatus, 5000);
     };
 
-    setIsScanning(true);
-    fetchScanStatus(); // Initial
-    interval = setInterval(fetchScanStatus, 5000);
-  };
+    checkScanFlow();
 
-  checkScanFlow();
-
-  return () => clearInterval(interval);
-}, [scanFileName, accessToken, setScanComplete]);
+    return () => clearInterval(interval);
+  }, [scanFileName, accessToken, setScanComplete]);
 
 
   const handleStopScan = async () => {

@@ -1,26 +1,43 @@
 // export const formatSecurityData = (rawData) => {
-//   return Object.values(rawData).flatMap(fileObj =>
-//     (fileObj.chunks || []).flatMap(chunk =>
-//       (chunk.ai_issues || []).map(issue => ({
-//         ...issue,
-//         fileName: fileObj.file  // use file path as fileName
-//       }))
+//   const severityOrder = { High: 1, Medium: 2, Low: 3 };
+
+//   return Object.values(rawData)?.flatMap(fileObj =>
+//       //@ts-ignore
+//       (fileObj?.chunks || [])?.flatMap(chunk => {
+//         console.log("chunks ", chunk)
+//         return (
+//           chunk?.ai_issues || [])?.map(issue => {
+//             console.log("inssues ", issue)
+//             return ({
+//               ...issue,
+//               //@ts-ignore
+//               fileName: fileObj?.file
+//             })
+//           }
+
+
+//           )
+//       }
+//       )
 //     )
-//   );
+//     ?.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
 // };
 
 
-export const formatSecurityData = (rawData) => {
+export const formatSecurityData = (rawData: any) => {
   const severityOrder = { High: 1, Medium: 2, Low: 3 };
 
   return Object.values(rawData)
-    .flatMap(fileObj =>
-      (fileObj.chunks || []).flatMap(chunk =>
-        (chunk.ai_issues || []).map(issue => ({
-          ...issue,
-          fileName: fileObj.file
-        }))
-      )
+    ?.flatMap((fileObj: any) =>
+      Array.isArray(fileObj?.chunks)
+        ? fileObj.chunks.flatMap((chunk: any) => {
+            const issues = Array.isArray(chunk?.ai_issues) ? chunk.ai_issues : [];
+            return issues.map((issue: any) => ({
+              ...issue,
+              fileName: fileObj?.file,
+            }));
+          })
+        : []
     )
-    .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+    ?.sort((a: any, b: any) => severityOrder[a.severity] - severityOrder[b.severity]);
 };

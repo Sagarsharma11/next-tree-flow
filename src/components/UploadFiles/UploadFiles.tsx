@@ -26,65 +26,39 @@ const UploadFiles = ({ setScanFile, setScanFileName, setData, setScanComplete, r
 
 
 
-  // const handleScanStart = async (projectId: string) => {
-  //   try {
-  //     console.log(`Starting scan for: ${projectId}`);
-  //     setScanFileName(projectId)
+const handleScanStart = async (projectId: string) => {
+  console.log(`🔍 Checking existing report for: ${projectId}`);
+  setScanFileName(projectId);
 
-
-  //     try {
-  //       const report = await getScanReport(projectId, accessToken);
-  //       const data = report?.report["test@mail.com"];
-  //       console.log("📝 Scan Report:", JSON.stringify(report, null, 2));
-  //       setData(data)
-  //     } catch (reportErr) {
-  //       console.error("Failed to fetch scan report:", reportErr);
-  //     }
-
-
-  //     const res = await startScan(projectId, accessToken);
-  //     console.log("Scan started successfully:", res);
-  //     setScanFile(true);
-  //   } catch (error) {
-  //     console.error("Scan start failed for", projectId, error);
-  //   }
-  // };
-
-
-  const handleScanStart = async (projectId: string) => {
   try {
-    console.log(`🔍 Checking existing report for: ${projectId}`);
-    setScanFileName(projectId);
+    const report = await getScanReport(projectId, accessToken);
+    const data = report?.report?.["test@mail.com"];
 
-    try {
-      const report = await getScanReport(projectId, accessToken);
-      const data = report?.report["test@mail.com"];
-
-      if (data) {
-        console.log("✅ Existing Scan Report found:", JSON.stringify(report, null, 2));
-        setData(data);
-        setScanFile(true); // No need to show scanning UI
-        setScanComplete(true);
-        return; // Don't proceed to scan
-      }
-    } catch (reportErr: any) {
-      if (reportErr?.response?.status === 404) {
-        console.log("📭 No report found. Proceeding with scan.");
-        // Proceed to scan
-      } else {
-        console.error("❌ Error fetching scan report:", reportErr);
-        return;
-      }
+    if (data) {
+      console.log("✅ Existing Scan Report found:", JSON.stringify(report, null, 2));
+      setData(data);
+      setScanFile(true);
+      setScanComplete(true);
+      return;
     }
 
-    // No report found, or report empty — start scan
+    // If data not found, fall through to scan initiation
+    console.log("⚠️ No existing scan data found, initiating new scan...");
+  } catch (reportErr) {
+    console.warn("⚠️ No report found or error fetching report, proceeding to scan.", reportErr);
+  }
+
+  try {
     const res = await startScan(projectId, accessToken);
     console.log("🚀 Scan started successfully:", res);
-    setScanFile(true); // triggers ScanZone logic
-  } catch (error) {
-    console.error("❌ Scan start failed for", projectId, error);
+  } catch (scanErr) {
+    console.error("❌ Failed to start scan:", scanErr);
+    return;
   }
+
+  setScanFile(true); // triggers ScanZone logic
 };
+
 
 
   return (
@@ -101,6 +75,7 @@ const UploadFiles = ({ setScanFile, setScanFileName, setData, setScanComplete, r
               size={180}
             />
             <p>{file}</p>
+            <small className='text-white rounded border py-2 px-2 bg-black'>click here to start the scan</small>
           </div>
         ))
       ) : (

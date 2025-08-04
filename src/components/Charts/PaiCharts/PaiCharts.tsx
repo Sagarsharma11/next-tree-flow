@@ -3,6 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
 const PaiCharts = ({ issues }) => {
+  console.log("pie chart issue ", issues)
+  //@ts-ignore
   const chartRef = useRef();
 
   useEffect(() => {
@@ -36,6 +38,7 @@ const PaiCharts = ({ issues }) => {
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
     const arcs = g.selectAll('arc')
+    //@ts-ignore
       .data(pie(severityCounts))
       .enter()
       .append('g');

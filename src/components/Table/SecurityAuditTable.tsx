@@ -41,8 +41,12 @@ const SecurityAuditTable = ({ issues }) => {
                                 </td>
                                 <td className="px-4 py-3">{issue["CVSS score"] || issue["cvss"]}</td>
                                 <td className="px-4 py-3 text-gray-600">
-                                    {issue["Security Recommendations"]
-                                    || issue["recommendations"]?.join(", ")
+                                    {
+                                    
+                                    issue["Security Recommendations"]||
+
+                                    issue["recommendations"] 
+                                    || issue["recommendations"]?.join(", ") 
                                     }
                                 </td>
                                 <td className="px-4 py-3 text-gray-600">
