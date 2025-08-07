@@ -17,8 +17,9 @@ const SecurityAuditTable = ({ issues }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-sm">
-                        {issues.map((issue, index) => (
-                            <tr
+                        {issues.map((issue, index) => {
+
+                            return <tr
                                 key={index}
                                 className="transition-transform duration-200 transform  hover:bg-yellow-50 cursor-pointer"
                             >
@@ -31,29 +32,33 @@ const SecurityAuditTable = ({ issues }) => {
                                 <td className="px-4 py-3 text-gray-700">{issue.description}</td>
                                 <td
                                     className={`px-4 py-3 font-bold ${issue.severity === "High"
-                                            ? "text-red-600"
-                                            : issue.severity === "Medium"
-                                                ? "text-yellow-600"
-                                                : "text-green-600"
+                                        ? "text-red-600"
+                                        : issue.severity === "Medium"
+                                            ? "text-yellow-600"
+                                            : "text-green-600"
                                         }`}
                                 >
                                     {issue.severity}
                                 </td>
-                                <td className="px-4 py-3">{issue["CVSS score"] || issue["cvss"]}</td>
+                                <td className="px-4 py-3">{issue["CVSS score"] || issue["cvss"]
+                                    || issue["cvss_score"] || issue["CVSS score"] || issue["CVSS"] 
+                                    || issue["CVSS_score"]
+                                    }</td>
                                 <td className="px-4 py-3 text-gray-600">
                                     {
-                                    
-                                    issue["Security Recommendations"]||
 
-                                    issue["recommendations"] 
-                                    || issue["recommendations"]?.join(", ") 
+                                        issue["Security Recommendations"] ||
+
+                                        issue["recommendations"]
+                                        || issue["recommendations"]?.join(", ")
                                     }
                                 </td>
                                 <td className="px-4 py-3 text-gray-600">
                                     {issue["fileName"]}
                                 </td>
                             </tr>
-                        ))}
+                        }
+                        )}
                     </tbody>
                 </table>
             </div>

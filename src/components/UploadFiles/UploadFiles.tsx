@@ -32,13 +32,16 @@ const handleScanStart = async (projectId: string) => {
 
   try {
     const report = await getScanReport(projectId, accessToken);
-    const data = report?.report?.["test@mail.com"];
+    const data = report?.["test@mail.com"];
+
+    console.log("data => ", data)
 
     if (data) {
       console.log("✅ Existing Scan Report found:", JSON.stringify(report, null, 2));
       setData(data);
       setScanFile(true);
       setScanComplete(true);
+  
       return;
     }
 

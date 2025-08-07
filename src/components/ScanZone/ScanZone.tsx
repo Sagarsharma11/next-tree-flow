@@ -220,7 +220,7 @@ const ScanZone = ({
             // Fetch report after scan completes
             try {
               const finalReport = await getScanReport(scanFileName, accessToken);
-              const data = finalReport?.report["test@mail.com"];
+              const data = finalReport["test@mail.com"];
               console.log("📦 Final Report:", finalReport);
               setData(data);
             } catch (reportErr) {
