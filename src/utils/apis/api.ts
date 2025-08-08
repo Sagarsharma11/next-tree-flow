@@ -191,3 +191,43 @@ export const getScanReport = async (projectId: string, accessToken?: string) => 
     throw error;
   }
 };
+
+
+export const listProjectStatus = async (accessToken: string) => {
+  try {
+    const response = await apiInstance.post(
+      "/secure_scanner/list-project-status",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("List project status failed", error);
+    throw error;
+  }
+};
+
+
+export const deleteProject = async (projectId: string, accessToken: string) => {
+  try {
+    const response = await apiInstance.post(
+      `/secure_scanner/delete-project/${projectId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Delete project failed", error);
+    throw error;
+  }
+};

@@ -162,10 +162,12 @@ const ScanZone = ({
         // Step 1: Try to fetch existing report
         if (!scanReport?.length && scanData.completed === true) {
           const report = await getScanReport(scanFileName, accessToken);
-          const data = report?.report["test@mail.com"];
+          // const data = report?.report["test@mail.com"];
+          const data = report;
+          console.log("=======================>", data)
           if (data) {
-            console.log("✅ Existing report found");
-            setData(data);
+            console.log("✅ Existing report found", data );
+            setData(data), 
             setScanComplete(true);
             setIsScanning(false);
             setProgress(100);
@@ -220,7 +222,7 @@ const ScanZone = ({
             // Fetch report after scan completes
             try {
               const finalReport = await getScanReport(scanFileName, accessToken);
-              const data = finalReport["test@mail.com"];
+              const data =  finalReport //finalReport["test@mail.com"];
               console.log("📦 Final Report:", finalReport);
               setData(data);
             } catch (reportErr) {

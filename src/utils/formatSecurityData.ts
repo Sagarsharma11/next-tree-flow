@@ -1,31 +1,11 @@
-// export const formatSecurityData = (rawData) => {
-//   const severityOrder = { High: 1, Medium: 2, Low: 3 };
-
-//   return Object.values(rawData)?.flatMap(fileObj =>
-//       //@ts-ignore
-//       (fileObj?.chunks || [])?.flatMap(chunk => {
-//         console.log("chunks ", chunk)
-//         return (
-//           chunk?.ai_issues || [])?.map(issue => {
-//             console.log("inssues ", issue)
-//             return ({
-//               ...issue,
-//               //@ts-ignore
-//               fileName: fileObj?.file
-//             })
-//           }
-
-
-//           )
-//       }
-//       )
-//     )
-//     ?.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
-// };
-
-
 export const formatSecurityData = (rawData: any) => {
-  const severityOrder = { High: 1, Medium: 2, Low: 3 };
+  const severityOrder: Record<string, number> = {
+    Critical: 1,
+    High: 2,
+    Medium: 3,
+    Low: 4,
+    Info: 5,
+  };
 
   return Object.values(rawData)
     ?.flatMap((fileObj: any) =>
@@ -39,5 +19,9 @@ export const formatSecurityData = (rawData: any) => {
           })
         : []
     )
-    ?.sort((a: any, b: any) => severityOrder[a.severity] - severityOrder[b.severity]);
+    ?.sort((a: any, b: any) => {
+      const aOrder = severityOrder[a.severity] ?? 999;
+      const bOrder = severityOrder[b.severity] ?? 999;
+      return aOrder - bOrder;
+    });
 };

@@ -21,8 +21,6 @@ import { getLocalStorage, removeLocalStorage } from "@/utils/localstorage/localS
 const data = {
   versions: ["1.0.1", 
     // "1.1.0-alpha", "2.0.0-beta1"
-
-
   ],
   navMain: [
     {
@@ -210,7 +208,11 @@ export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     
-                    <SidebarMenuButton asChild isActive={item.isActive}>
+                    <SidebarMenuButton 
+                    //@ts-ignore
+                    asChild isActive={item.isActive}
+                    
+                    >
                       {
                         item.title === "Logout" ?
                           <button className="border cursor-pointer"

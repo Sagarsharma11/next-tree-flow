@@ -43,7 +43,7 @@ const Login = () => {
                 setLocalStorage("token", response.data.access_token);
                 setLocalStorage("refresh_token", response.data.refresh_token);
                 setLocalStorage("email", data.username)
-                router.replace("/dashboard");
+                router.replace("/secure-code");
             }
             setMessage(response.data.message || "Signup successful!");
         } catch (error) {

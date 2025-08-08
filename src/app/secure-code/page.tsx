@@ -28,36 +28,7 @@ const SecureCode = () => {
     const [issues, setIssues] = useState([]);
     const [data, setData] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
-
-
-
     const formattedData = formatSecurityData(data) || [];
-    // useEffect(() => {
-
-
-    //     const fetchData = async () => {
-    //         // const response = await fetch('/data/analysis_report.json'); // Path to your JSON
-    //         // const data = await response.json();
-
-    //         const allIssues = [];
-    //         console.log("data =================", data)
-    //         Object.values(data).forEach(file => {
-    //             file?.chunks.forEach(chunk => {
-    //                 chunk.ai_issues.forEach(issue => {
-    //                     allIssues.push({ severity: issue.severity });
-    //                 });
-    //             });
-    //         });
-
-    //         setIssues(allIssues);
-    //     };
-
-    //     fetchData();
-    // }, []);
-
-
-
-    // console.log("=============>", formattedData)
 
     useEffect(() => {
         if (!data || Object.keys(data).length === 0) return;
@@ -106,7 +77,7 @@ const SecureCode = () => {
                         :
                         <>
                             <UploadComponent setRefreshTrigger={setRefreshTrigger} />
-                            <UploadFiles refreshTrigger={refreshTrigger} setScanComplete={setScanComplete} setData={setData} setScanFile={setScanFile} setScanFileName={setScanFileName}
+                            <UploadFiles refreshTrigger={refreshTrigger} setScanComplete={setScanComplete} setData={setData} setScanFile={setScanFile} setScanFileName={setScanFileName} setRefreshTrigger={setRefreshTrigger}
                             />
                         </>
                 }
