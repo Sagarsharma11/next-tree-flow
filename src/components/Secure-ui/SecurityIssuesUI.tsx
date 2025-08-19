@@ -97,7 +97,7 @@ const ChunkView: React.FC<{ chunk: Chunk, generatePdf: any }> = ({ chunk, genera
         // className="bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64 "
         className={`bg-gray-100 p-2 rounded text-xs ${!generatePdf && "overflow-x-auto max-h-64"}`}
       >
-        {chunk.chunk_content.substring(0, 500)}...
+        {chunk.chunk_content}
       </pre>
     </div>
     {chunk.ai_issues.map((issue, idx) => (
