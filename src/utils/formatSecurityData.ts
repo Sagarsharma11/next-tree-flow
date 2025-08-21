@@ -1,10 +1,10 @@
 export const formatSecurityData = (rawData: any) => {
   const severityOrder: Record<string, number> = {
-    Critical: 1,
-    High: 2,
-    Medium: 3,
-    Low: 4,
-    Info: 5,
+    critical: 1,
+    high: 2,
+    medium: 3,
+    low: 4,
+    info: 5,
   };
 
   return Object.values(rawData)
@@ -20,8 +20,8 @@ export const formatSecurityData = (rawData: any) => {
         : []
     )
     ?.sort((a: any, b: any) => {
-      const aOrder = severityOrder[a.severity] ?? 999;
-      const bOrder = severityOrder[b.severity] ?? 999;
+      const aOrder = severityOrder[a.severity.toLowerCase()] ?? 999;
+      const bOrder = severityOrder[b.severity.toLowerCase()] ?? 999;
       return aOrder - bOrder;
     });
 };

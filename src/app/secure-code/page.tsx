@@ -10,16 +10,15 @@ import dynamic from 'next/dynamic';
 import Auth from '@/utils/AuthHOC/Auth'
 import PaiCharts from '@/components/Charts/PaiCharts/PaiCharts'
 
-
 const SecurityIssuesUI = dynamic(
     () => import('@/components/Secure-ui/SecurityIssuesUI'),
     { ssr: false }
 );
-
-// import sampleData from "@/utils/data/secure_code_data1.json"
-// import data from "../../utils/data/secure_code_data1.json"
 import SecurityAuditTable from '@/components/Table/SecurityAuditTable'
 import { formatSecurityData } from '@/utils/formatSecurityData'
+import { generateReport } from '@/utils/apis/api'
+import { getLocalStorage } from '@/utils/localstorage/localStorage'
+import SeverityPieChart from '@/components/Charts/PaiCharts/SeverityPieChart'
 
 const SecureCode = () => {
     const [scanFile, setScanFile] = useState(false);
@@ -29,6 +28,7 @@ const SecureCode = () => {
     const [data, setData] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const formattedData = formatSecurityData(data) || [];
+    const accessToken = getLocalStorage("token")?.replace(/['"]+/g, "") || "";
 
     useEffect(() => {
         if (!data || Object.keys(data).length === 0) return;
@@ -50,7 +50,14 @@ const SecureCode = () => {
         setIssues(allIssues);
     }, [data]);
 
-    console.log("issues => ", issues)
+    // console.log("issues => ", issues)
+    const handleDownload = async () => {
+        try {
+            await generateReport(scanFileName, accessToken);
+        } catch (err) {
+            console.error("Failed to download report", err);
+        }
+    };
 
     return (
         <DashboardLayout>
@@ -58,15 +65,30 @@ const SecureCode = () => {
                 {
                     scanFile ?
                         <>
-                            <ScanZone setData={setData} scanFile={scanFile} scanFileName={scanFileName} setScanComplete={setScanComplete}
+
+                            {!scanComplete && <ScanZone setData={setData} scanFile={scanFile} scanFileName={scanFileName} setScanComplete={setScanComplete}
                                 scanReport={data}
-                            />
+                            />}
+
                             {scanComplete &&
                                 <div className='flex flex-col justify-start'>
-                                    <h2 className="text-3xl font-bold text-gray-800 mb-6">
-                                        🔍 Security Audit Report
-                                    </h2>
-                                    <PaiCharts issues={issues} />
+                                    <div className='flex justify-between item-center pt-2 pb-2'>
+                                        <h2 className="text-3xl font-bold text-gray-800 mb-6">
+                                            🔍 Security Audit Report
+                                        </h2>
+                                        
+                                        <button
+                                            onClick={handleDownload}
+                                            className={`px-4 py-1 rounded-md  text-white flex items-center gap-2
+                                                bg-stone-900 hover:bg-stone-800 border-t-2 border-t-neutral-900`}
+                                        >
+
+                                            Generate PDF
+                                        </button>
+                                    </div>
+                                    <SeverityPieChart data={issues} />
+
+                                    {/* <PaiCharts issues={issues} /> */}
                                     <SecurityAuditTable issues={formattedData} />
                                     <SecurityIssuesUI
                                         //@ts-ignore

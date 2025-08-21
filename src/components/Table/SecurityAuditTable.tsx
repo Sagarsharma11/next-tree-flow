@@ -4,21 +4,29 @@ const SecurityAuditTable = ({ issues }) => {
     console.log("issues => ", issues)
 
     const getSeverityColor = (severity: string) => {
-  switch (severity) {
-    case 'Critical':
-      return '#8B0000'; // Dark Red
-    case 'High':
-      return '#e74c3c'; // Red
-    case 'Medium':
-      return '#f1c40f'; // Yellow
-    case 'Low':
-      return '#2ecc71'; // Green
-    case 'Info':
-      return '#53EAFD'; // Blue
-    default:
-      return '#000000'; // Default Black or fallback
-  }
-};
+        switch (severity) {
+            case 'critical':
+                return '#8B0000'; // Dark Red
+            case 'high':
+                return '#e74c3c'; // Red
+            case 'medium':
+                return '#f1c40f'; // Yellow
+            case 'low':
+                return '#2ecc71'; // Green
+            case 'info':
+                return '#53EAFD'; // Blue
+            default:
+                return '#000000'; // Default Black or fallback
+        }
+    };
+
+    function toTitleCase(str) {
+        return str
+          .toLowerCase()
+          .split(" ")
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      }
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -50,16 +58,16 @@ const SecurityAuditTable = ({ issues }) => {
                                 </td>
                                 <td className="px-4 py-3 text-gray-700">{issue.description}</td>
                                 <td
-                                    className={`px-4 py-3 font-bold` }
+                                    className={`px-4 py-3 font-bold`}
 
-                                      style={{ color: getSeverityColor(issue.severity) }}
+                                    style={{ color: getSeverityColor(issue?.severity?.toLowerCase()) }}
                                 >
-                                    {issue.severity}
+                                    {toTitleCase(issue?.severity)}
                                 </td>
                                 <td className="px-4 py-3">{issue["CVSS score"] || issue["cvss"]
-                                    || issue["cvss_score"] || issue["CVSS score"] || issue["CVSS"] 
+                                    || issue["cvss_score"] || issue["CVSS score"] || issue["CVSS"]
                                     || issue["CVSS_score"]
-                                    }</td>
+                                }</td>
                                 <td className="px-4 py-3 text-gray-600">
                                     {
 

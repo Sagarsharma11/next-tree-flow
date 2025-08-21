@@ -41,7 +41,7 @@ const getSeverityColor = (severity: string): string => {
   }
 };
 
-const IssueCard: React.FC<{ issue: Issue, generatePdf: any }> = ({ issue, generatePdf }) => (
+const IssueCard: React.FC<{ issue: Issue }> = ({ issue }) => (
   <Card className="bg-white border mt-4 p-4 space-y-2 shadow-md">
     <h3 className="text-lg font-semibold">{issue.name}</h3>
     <p className="text-sm font-medium" style={{ color: getSeverityColor(issue.severity) }}>
@@ -52,7 +52,6 @@ const IssueCard: React.FC<{ issue: Issue, generatePdf: any }> = ({ issue, genera
     {issue["Corrected example code"] && (
       <div className="relative">
         {
-          !generatePdf &&
           <button
             className="absolute top-1 right-1 bg-gray-200 hover:bg-gray-300 text-xs px-2 py-1 rounded"
             onClick={() => navigator.clipboard.writeText(issue["Corrected example code"] || '')}
@@ -61,8 +60,7 @@ const IssueCard: React.FC<{ issue: Issue, generatePdf: any }> = ({ issue, genera
           </button>
         }
         <pre
-          className={`text-xs font-mono p-2 rounded w-full bg-gray-100 ${generatePdf ? 'whitespace-pre-wrap break-words' : 'whitespace-pre overflow-x-auto'
-            }`}
+          className={`text-xs font-mono p-2 rounded w-full bg-gray-100 whitespace-pre overflow-x-auto`}
         >
           {issue["Corrected example code"]}
         </pre>
@@ -71,37 +69,35 @@ const IssueCard: React.FC<{ issue: Issue, generatePdf: any }> = ({ issue, genera
   </Card>
 );
 
-const ChunkView: React.FC<{ chunk: Chunk, generatePdf: any }> = ({ chunk, generatePdf }) => (
+const ChunkView: React.FC<{ chunk: Chunk }> = ({ chunk }) => (
   <div className="mt-4">
 
     {
-      !generatePdf &&
       <p className="text-sm text-gray-500 mb-2">
         Lines: {chunk.start_line}–{chunk.end_line}
       </p>
     }
     <div
       // className="relative"
-      className={generatePdf ? "" : "relative"}
+      className={"relative"}
     >
-      {
-        !generatePdf &&
+
         <button
           className="absolute top-1 right-1 bg-gray-200 hover:bg-gray-300 text-xs px-2 py-1 rounded"
           onClick={() => navigator.clipboard.writeText(chunk.chunk_content)}
         >
           Copy
         </button>
-      }
+
       <pre
         // className="bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64 "
-        className={`bg-gray-100 p-2 rounded text-xs ${!generatePdf && "overflow-x-auto max-h-64"}`}
+        className={`bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64`}
       >
         {chunk.chunk_content}
       </pre>
     </div>
     {chunk.ai_issues.map((issue, idx) => (
-      <IssueCard key={idx} issue={issue} generatePdf={generatePdf} />
+      <IssueCard key={idx} issue={issue} />
     ))}
   </div>
 );
@@ -110,8 +106,8 @@ const FileAccordion: React.FC<{
   filename: string;
   fileData: FileData;
   forceOpen?: boolean;
-  generatePdf: any
-}> = ({ filename, fileData, forceOpen = false, generatePdf }) => {
+  // generatePdf: any
+}> = ({ filename, fileData, forceOpen = false }) => {
   // console.log(" ==>", filename, fileData)
   const [open, setOpen] = useState(forceOpen);
 
@@ -185,7 +181,7 @@ const FileAccordion: React.FC<{
       {open && (
         <div className="p-4 bg-white">
           {fileData.chunks.map((chunk, idx) => (
-            <ChunkView key={idx} chunk={chunk} generatePdf={generatePdf} />
+            <ChunkView key={idx} chunk={chunk} />
           ))}
         </div>
       )}
@@ -196,43 +192,37 @@ const FileAccordion: React.FC<{
 const SecurityIssuesUI: React.FC<SecurityIssuesProps> = ({ issuesData }) => {
   const reportRef = useRef<HTMLDivElement>(null);
   const [expandedFiles, setExpandedFiles] = useState<Record<string, boolean>>({});
-  const [generatePdf, setGeneratePdf] = useState(false)
+  // const [generatePdf, setGeneratePdf] = useState(false)
 
-  const generatePDF = () => {
-    const allExpanded = Object.keys(issuesData).reduce((acc, file) => {
-      acc[file] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
+  // const generatePDF = () => {
+  //   const allExpanded = Object.keys(issuesData).reduce((acc, file) => {
+  //     acc[file] = true;
+  //     return acc;
+  //   }, {} as Record<string, boolean>);
 
-    setExpandedFiles(allExpanded);
-    setGeneratePdf(true)
+  //   setExpandedFiles(allExpanded);
+  //   setGeneratePdf(true)
 
-    // Allow UI update before generating
-    setTimeout(() => {
-      if (!reportRef.current) return;
-      html2pdf()
-        .set({
-          margin: 10,
-          filename: 'report.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        })
-        .from(reportRef.current)
-        .save();
-      setGeneratePdf(false)
-    }, 300);
-  };
+  //   // Allow UI update before generating
+  //   setTimeout(() => {
+  //     if (!reportRef.current) return;
+  //     html2pdf()
+  //       .set({
+  //         margin: 10,
+  //         filename: 'report.pdf',
+  //         image: { type: 'jpeg', quality: 0.98 },
+  //         html2canvas: { scale: 2 },
+  //         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  //       })
+  //       .from(reportRef.current)
+  //       .save();
+  //     setGeneratePdf(false)
+  //   }, 300);
+  // };
 
   return (
     <div className="w-full p-4 sm:p-0">
       <h1 className="text-2xl font-bold mb-6">Security Issues Report</h1>
-      <small
-        className="text-blue-600 cursor-pointer hover:underline"
-        onClick={generatePDF}
-      >
-        Generate Report
-      </small>
       <div ref={reportRef} className="mt-4">
         {Object.entries(issuesData).map(([filename, fileData]) => (
           <FileAccordion
@@ -240,7 +230,7 @@ const SecurityIssuesUI: React.FC<SecurityIssuesProps> = ({ issuesData }) => {
             filename={filename}
             fileData={fileData}
             forceOpen={expandedFiles[filename]}
-            generatePdf={generatePdf}
+            // generatePdf={generatePdf}
           />
         ))}
       </div>

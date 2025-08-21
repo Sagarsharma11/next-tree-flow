@@ -231,3 +231,53 @@ export const deleteProject = async (projectId: string, accessToken: string) => {
     throw error;
   }
 };
+
+export const generateReport = async (projectId: string, accessToken?: string) => {
+  try {
+    const response = await apiInstance.post(
+      `/secure_scanner/generate-report/${projectId}`,
+      {},
+      {
+        headers: {
+          Accept: "application/json",
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+        responseType: "blob", // 👈 makes sure we get file data
+      }
+    );
+
+    // Create a temporary download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `${projectId}_report.pdf`); // name of file
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    return true;
+  } catch (error) {
+    console.error("Generate report failed", error);
+    throw error;
+  }
+};
+
+// export const generateReport = async (projectId: string, accessToken?: string) => {
+//   try {
+//     const response = await apiInstance.post(
+//       `/secure_scanner/generate-report/${projectId}`,
+//       {},
+//       {
+//         headers: {
+//           Accept: "application/json",
+//           ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+//         },
+//       }
+//     );
+
+//     return response.data;
+//   } catch (error) {
+//     console.error("Generate report failed", error);
+//     throw error;
+//   }
+// };

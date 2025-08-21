@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
 const PaiCharts = ({ issues }) => {
+  console.log("issues ", issues)
   //@ts-ignore
   const chartRef = useRef();
 
