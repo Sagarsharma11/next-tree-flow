@@ -64,7 +64,11 @@ const SeverityPieChart = ({ data }) => {
 
   return (
     <div className="border flex justify-center p-4" style={{ height: "400px" }}>
-      <Pie data={chartData} options={options} />
+      <Pie data={chartData} 
+      //@ts-ignore
+      options={options} 
+      
+      />
     </div>
   );
 };
