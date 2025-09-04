@@ -29,6 +29,7 @@ const SecureCode = () => {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const formattedData = formatSecurityData(data) || [];
     const accessToken = getLocalStorage("token")?.replace(/['"]+/g, "") || "";
+    const [downloadReport, setDownloadreport] = useState(false);
 
     useEffect(() => {
         if (!data || Object.keys(data).length === 0) return;
@@ -52,12 +53,19 @@ const SecureCode = () => {
 
     // console.log("issues => ", issues)
     const handleDownload = async () => {
+        setDownloadreport(true)
         try {
+
             await generateReport(scanFileName, accessToken);
         } catch (err) {
             console.error("Failed to download report", err);
+            setDownloadreport(false)
+        } finally {
+            setDownloadreport(false)
         }
     };
+
+
 
     return (
         <DashboardLayout>
@@ -76,14 +84,17 @@ const SecureCode = () => {
                                         <h2 className="text-3xl font-bold text-gray-800 mb-6">
                                             🔍 Security Audit Report
                                         </h2>
-                                        
+
                                         <button
                                             onClick={handleDownload}
                                             className={`px-4 py-1 rounded-md  text-white flex items-center gap-2
                                                 bg-stone-900 hover:bg-stone-800 border-t-2 border-t-neutral-900`}
                                         >
 
-                                            Generate PDF
+                                            {
+                                                downloadReport? "loading...":" Generate PDF"
+                                            }
+                                           
                                         </button>
                                     </div>
                                     <SeverityPieChart data={issues} />

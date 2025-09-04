@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
+
 export function VersionSwitcher({
   versions,
   defaultVersion,
@@ -34,7 +35,9 @@ export function VersionSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <GalleryVerticalEnd className="size-4" />
+                {/* <GalleryVerticalEnd className="size-4" /> */}
+               
+                <img src="/logo_key_2.png" alt="logo" className="rounded-full h-full w-full" />
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">Keycypher</span>
