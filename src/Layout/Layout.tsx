@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/s
 import { Separator } from '@radix-ui/react-separator'
 import ClientComponent from "@/app/components/ClientComponent";
 import { AppSideBar } from "@/app/components/SideBar";
+import ThemeToggle from '@/components/DarkMode/ThemeToggle';
 
 
 export default function DashboardLayout({

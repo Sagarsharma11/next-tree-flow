@@ -78,7 +78,7 @@
 //                 className="text-blue-500 transition-transform duration-300 hover:text-blue-700 hover:scale-110"
 //                 size={50}
 //               />
-              
+
 //               <p className='text-xl'>{
 //                       //@ts-ignore
 //               file.project_name}</p>
@@ -91,7 +91,7 @@
 //                   file.completed ? 'bg-green-600 text-white' : 'bg-black text-white'
 //                 }`}
 //               >
-                
+
 //                 {
 //                         //@ts-ignore
 //                 file.completed ? "Check Report" : "Click here to start the scan"}
@@ -123,6 +123,8 @@ import { MdFolderZip, MdDelete } from "react-icons/md";
 import { getLocalStorage } from '@/utils/localstorage/localStorage';
 import { getScanReport, listProjectStatus, startScan, deleteProject } from '@/utils/apis/api';
 import Swal from 'sweetalert2';
+import { MdNotStarted } from "react-icons/md";
+
 
 const UploadFiles = ({ setScanFile, setScanFileName, setData, setScanComplete, refreshTrigger, setRefreshTrigger }: any) => {
   const [projects, setProjects] = useState<string[]>([]);
@@ -211,7 +213,10 @@ const UploadFiles = ({ setScanFile, setScanFileName, setData, setScanComplete, r
         projects.map((file, idx) => (
           <div
             key={idx}
-            className='flex w-[32rem] justify-between border items-center p-4 rounded-md hover:bg-gray-100 cursor-pointer gap-2'
+
+            className="
+  flex w-[32rem] justify-between border items-center p-4 rounded-md gap-2
+"
             //@ts-ignore
             onClick={() => handleScanStart(file.project_name)}
           >
@@ -230,14 +235,14 @@ const UploadFiles = ({ setScanFile, setScanFileName, setData, setScanComplete, r
 
             <div className='flex gap-2 items-center '>
               <small
-                className={`rounded border py-2 px-2 cursor-pointer hover:opacity-90 ${
+                className={`rounded-sm border py-2 px-2 cursor-pointer hover:opacity-80 ${
                   //@ts-ignore
                   file.completed ? 'bg-green-600 text-white' : 'bg-black text-white'
-                }`}
+                  }`}
               >
                 {
                   //@ts-ignore
-                  file.completed ? "Check Report" : "Click here to start the scan"
+                  file.completed ? "Check Report" : <div className='flex gap-2 items-center'>Click here to start the scan <MdNotStarted /> </div>
                 }
               </small>
 
@@ -247,6 +252,7 @@ const UploadFiles = ({ setScanFile, setScanFileName, setData, setScanComplete, r
                   //@ts-ignore
                   handleDelete(file.project_name);
                 }}
+                className='cursor-pointer'
               >
                 <MdDelete size={26} color="red" className="hover:scale-110 transition-transform" />
               </div>

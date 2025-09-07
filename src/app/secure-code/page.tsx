@@ -19,6 +19,7 @@ import { formatSecurityData } from '@/utils/formatSecurityData'
 import { generateReport } from '@/utils/apis/api'
 import { getLocalStorage } from '@/utils/localstorage/localStorage'
 import SeverityPieChart from '@/components/Charts/PaiCharts/SeverityPieChart'
+import ThemeToggle from '@/components/DarkMode/ThemeToggle'
 
 const SecureCode = () => {
     const [scanFile, setScanFile] = useState(false);
@@ -70,6 +71,7 @@ const SecureCode = () => {
     return (
         <DashboardLayout>
             <div className={styles.mainContainer} >
+            
                 {
                     scanFile ?
                         <>

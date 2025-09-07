@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 import { logout } from "@/utils/apis/api"
 import { getLocalStorage, removeLocalStorage } from "@/utils/localstorage/localStorage"
+import ThemeToggle from "@/components/DarkMode/ThemeToggle"
 
 // This is sample data.
 const data = {
@@ -227,6 +228,7 @@ export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+           <ThemeToggle />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
